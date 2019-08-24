@@ -1,0 +1,7 @@
+rutaLocal`C:\Users\HL\Desktop
+nombrepcLAN`GALADRIEL
+fullrutaLAN`\\GALADRIEL\FotosAsistente\
+dominioLAN`10.18.30.89
+usuarioLAN`AK0
+passwordLAN`light
+rutaFTP`http://totembiblioteca.iae.edu.ar

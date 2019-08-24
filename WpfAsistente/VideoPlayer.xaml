@@ -1,0 +1,39 @@
+﻿<Window x:Class="WpfAsistente.VideoPlayer"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WpfAsistente"
+        mc:Ignorable="d"
+        Title="VideoPlayer" Height="300" Width="300" AllowsTransparency="True" WindowStyle="None"
+        Initialized="VideoPlayer_OnInitialized" WindowStartupLocation="Manual" Background="{x:Null}">
+
+    <Canvas x:Name="canvasContainer" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#00175b">
+        <MediaElement x:Name="mediaElement" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="100" Height="100" Volume="1">
+            <MediaElement.Effect>
+                <DropShadowEffect/>
+            </MediaElement.Effect>
+        </MediaElement>
+        <Label x:Name="label" Content="weeee!!" Background="{x:Null}" Foreground="#FFF3F3F3" FontFamily="DINPro" FontSize="36" Opacity="0">
+            <Label.Effect>
+                <DropShadowEffect ShadowDepth="4"/>
+            </Label.Effect>
+            <Label.Resources>
+                <BeginStoryboard x:Key="SotoryB">
+                    <Storyboard>
+                        <DoubleAnimation From="0" To="100" Duration="0:0:2" Storyboard.TargetProperty="(Opacity)" Storyboard.TargetName="label" AccelerationRatio="0.4" DecelerationRatio="0.3"/>
+                    </Storyboard>
+
+                </BeginStoryboard>
+
+                <BeginStoryboard x:Key="SotoryBOut">
+                    <Storyboard>
+                        <DoubleAnimation  To="0" Duration="0:0:0.1" Storyboard.TargetProperty="(Opacity)" Storyboard.TargetName="label"/>
+                    </Storyboard>
+
+                </BeginStoryboard>
+            </Label.Resources>
+        </Label>
+
+    </Canvas>
+</Window>

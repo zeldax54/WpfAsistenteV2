@@ -1,0 +1,114 @@
+﻿<Window x:Class="WpfAsistente.Browser"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WpfAsistente"
+        mc:Ignorable="d"
+        Title="Browser" Height="300" Width="300"
+        ResizeMode="NoResize"
+     
+        Initialized="Browser_OnInitialized"
+        xmlns:wf="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms" 
+        WindowStyle="None"
+        >
+
+    <Window.Resources>
+    <Style x:Key="MyButtonStyle" TargetType="Button">
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
+        <Setter Property="Margin" Value="5"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border Name="border"
+  BorderThickness="1"
+  Padding="4,2"
+  BorderBrush="Transparent"
+  CornerRadius="3"
+  Background="{TemplateBinding Background}">
+                        <ContentPresenter
+ HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="border" Property="BorderBrush" Value="Transparent" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <EventTrigger RoutedEvent="Button.Click">
+                <EventTrigger.Actions>
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <DoubleAnimation By="-5" Duration="0:0:0.1" Storyboard.TargetProperty="(Button.Height) " AutoReverse="True"/>
+                            <DoubleAnimation By="-5" Duration="0:0:0.1" Storyboard.TargetProperty="(Button.Width)" AutoReverse="True"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger.Actions>
+            </EventTrigger>
+        </Style.Triggers>
+
+    </Style>
+    </Window.Resources>
+    
+
+    <Grid  HorizontalAlignment="Stretch"       
+          VerticalAlignment="Stretch" Background="Transparent"        Height="Auto" Width="Auto">
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Canvas x:Name="canvasContainerLine" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#00175b">
+            <Button x:Name="Volver2" Content="" Canvas.Right="0" Canvas.Top="0"   Width="179" Height="177" BorderThickness="0" Style="{StaticResource MyButtonStyle}" Opacity="100">
+                <Button.Effect>
+                    <DropShadowEffect/>
+                </Button.Effect>
+
+                <Button.Background>
+                    <ImageBrush ImageSource="pack://siteoforigin:,,,/Resources/Volver.png" />
+                </Button.Background>
+            </Button>
+
+        </Canvas>
+
+      
+            <WindowsFormsHost Grid.Column="0" Grid.Row="1" x:Name="BrowserFormsHost">
+               <wf:WebBrowser x:Name="browser" ScrollBarsEnabled="True" Visible="True"></wf:WebBrowser>
+            </WindowsFormsHost>
+
+        <Canvas x:Name="canvasContainerLine2" Grid.Column="0" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#00175b">
+            <Button x:Name="Volver" Content="" Canvas.Right="0" Canvas.Top="0"   Width="179" Height="177" BorderThickness="0" Style="{StaticResource MyButtonStyle}" Opacity="100">
+                <Button.Effect>
+                    <DropShadowEffect/>
+                </Button.Effect>
+
+                <Button.Background>
+                    <ImageBrush ImageSource="pack://siteoforigin:,,,/Resources/Volver.png" />
+                </Button.Background>
+            </Button>
+        </Canvas>
+
+        
+        <Canvas x:Name="zocalo" Grid.Column="0" Grid.Row="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
+            <Canvas.Background>
+                <ImageBrush ImageSource="pack://siteoforigin:,,,/Resources/Zocalo.jpg" />
+            </Canvas.Background>
+       
+        </Canvas>
+    </Grid>
+
+       
+
+   
+
+
+</Window>
