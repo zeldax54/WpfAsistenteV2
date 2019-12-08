@@ -40,22 +40,19 @@ namespace WpfAsistente
        {
            _capture.SetCaptureProperty(Emgu.CV.CvEnum.CapProp.FrameHeight, 1280);
            _capture.SetCaptureProperty(Emgu.CV.CvEnum.CapProp.FrameWidth, 720);
-        }
+       }
 
         public void SetCaptureStandar()
-       {
+        {
             _capture.SetCaptureProperty(Emgu.CV.CvEnum.CapProp.FrameHeight, 640);
             _capture.SetCaptureProperty(Emgu.CV.CvEnum.CapProp.FrameWidth, 480);
         }
 
        public void Capture(ref double elapsedTime, ref double nocapttime)
-        {
-           
+        {           
             if (_capture.QueryFrame() != null)
             {
-
-                var imageFrame = _capture.QueryFrame().ToImage<Bgr, Byte>();
-                
+                var imageFrame = _capture.QueryFrame().ToImage<Bgr, Byte>();                
                 if (imageFrame != null && !StopRecon)
                 {
                     var grayframe = imageFrame.Convert<Gray, byte>();
@@ -93,17 +90,12 @@ namespace WpfAsistente
                 }
                 // imgCamUser.SetZoomScale(0.5, new Point(0, 0));
                 if (DataContainer.Instance().IsinSelfie)
-                {
-               
+                {               
                     imageFrame = imageFrame?.Resize(1280, 720, Emgu.CV.CvEnum.Inter.Linear);
                    // imageFrame= imageFrame?.SmoothGaussian(5, 5, 2, 0);
                     DataContainer.Instance().Result = Helper.ToBitmapSource(imageFrame);
-                }
-              
-            }
-           
-        }
-
-     
+                }              
+            }           
+        }     
     }
 }

@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
 using mshtml;
+using System.Xml.Serialization;
+using System.IO;
 
 namespace WpfAsistente
 {
@@ -99,5 +101,41 @@ namespace WpfAsistente
       {
           return int.Parse( hora.Split(':')[0]) == DateTime.Now.Hour;
       }
-  }
+
+        public List<T> GetTypeListFromXML<T>(string tagchild)
+        {
+            XmlNodeList nodes = _documento.GetElementsByTagName(tagchild);
+            List<T> final = new List<T>();
+            foreach (XmlNode nodo in nodes)
+            {
+                Type typeParameterType = typeof(T);
+                System.Xml.Serialization.XmlSerializer ser = new System.Xml.Serialization.XmlSerializer(typeof(T));
+                using (StringReader sr = new StringReader(nodo.OuterXml))
+                {
+                    final.Add((T)ser.Deserialize(sr)); ;
+                }         
+            }
+            return final;
+        }
+
+        public T Deserialize<T>(string input) where T : class
+        {
+            System.Xml.Serialization.XmlSerializer ser = new System.Xml.Serialization.XmlSerializer(typeof(T));
+            using (StringReader sr = new StringReader(input))
+            {
+                return (T)ser.Deserialize(sr);
+            }
+        }
+
+        public string Serialize<T>(T ObjectToSerialize)
+        {
+            XmlSerializer xmlSerializer = new XmlSerializer(ObjectToSerialize.GetType());
+
+            using (StringWriter textWriter = new StringWriter())
+            {
+                xmlSerializer.Serialize(textWriter, ObjectToSerialize);
+                return textWriter.ToString();
+            }
+        }
+    }
 }

@@ -199,6 +199,7 @@
     <Compile Include="Selfie.xaml.cs">
       <DependentUpon>Selfie.xaml</DependentUpon>
     </Compile>
+    <Compile Include="TypeClass\Helperclasses.cs" />
     <Compile Include="VideoPlayer.xaml.cs">
       <DependentUpon>VideoPlayer.xaml</DependentUpon>
     </Compile>

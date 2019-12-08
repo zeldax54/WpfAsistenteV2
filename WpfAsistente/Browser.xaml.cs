@@ -35,6 +35,10 @@ namespace WpfAsistente
             InitializeComponent();
         }
 
+   
+
+     
+
         private void Browser_OnInitialized(object sender, EventArgs e)
         {
             DataContainer.Instance().IsInBrowsewr = true;
@@ -66,9 +70,49 @@ namespace WpfAsistente
             Volver.Click += Volver_Click;
             Volver2.Click += Volver_Click;
             //
-            browser.DocumentCompleted += LoadCompleteEventHandler;
+           browser.DocumentCompleted += LoadCompleteEventHandler;
             browser.ScriptErrorsSuppressed = true;
+            browser.DocumentCompleted += Browser_DocumentCompleted;
+        //   browser.Navigating += Browser_Navigating;
             browser.Navigate(DataContainer.Instance().Url);
+            browser.NewWindow += Browser_NewWindow;
+       
+          
+
+
+
+        }
+
+       
+        private void Browser_NewWindow(object sender, CancelEventArgs e)
+        {
+            e.Cancel = true;
+            if (DataContainer.Instance().Accion == "Buscador") {
+                var text = browser.Document.GetElementsByTagName("input").Cast<HtmlElement>().FirstOrDefault(a=>a.GetAttribute("type")=="text").GetAttribute("value") ;
+                string url = $"https://udesa-primo.hosted.exlibrisgroup.com/primo-explore/search?query=any,contains,{text}&tab=usa_tab&search_scope=usa_scope&sortby=rank&vid=54USA_INST&lang=es_AR&mode=Basic";
+                browser.Navigate(url);
+            }
+            else if (DataContainer.Instance().Accion == "Revista")
+            {
+                var text = browser.Document.GetElementsByTagName("input").Cast<HtmlElement>().FirstOrDefault(a => a.GetAttribute("type") == "text").GetAttribute("value");
+                string url = $"https://udesa-primo.hosted.exlibrisgroup.com/primo-explore/jsearch?journals=title,{text}&query=title,contains,cuba&tab=jsearch_slot&vid=54USA_INST&lang=es_AR&offset=0";
+                browser.Navigate(url);
+            }
+            else
+                browser.Navigate(browser.StatusText);
+        }
+
+        private void Browser_Navigating(object sender, WebBrowserNavigatingEventArgs e)
+        {
+            bool allow = false;
+            foreach (var item in DataContainer.Instance().clickedButton.allowedurlscope)
+            {
+                if (e.Url.AbsoluteUri.StartsWith(item)){
+                    allow = true;break;
+                }
+            }
+            if (!allow)
+                e.Cancel=true;
 
         }
 
@@ -100,36 +144,123 @@ namespace WpfAsistente
                         }
                     }
                 }
-                if (DataContainer.Instance().Accion != "catalogo")
-                    return;
-                if (browser.Document != null && browser.Document.Title.Contains("Resultados del catálogo"))
+           
+                if (browser.Document != null && DataContainer.Instance().clickedButton.deletesections.Count() > 0)
                 {
-                    HtmlElementCollection uls = browser.Document.GetElementsByTagName("form");
-                    HtmlElementCollection links = null;
-                    HtmlElementCollection inputs = null;
-                    HtmlElement resultform = uls.Cast<HtmlElement>().Where(elem => elem.Id == "hitlist").ToList().FirstOrDefault();
-                    if (resultform != null && resultform.Children.Count > 0)
+                    foreach (var item in DataContainer.Instance().clickedButton.deletesections)
                     {
-                        links = resultform.GetElementsByTagName("a");
-                        // inputs = resultform.GetElementsByTagName("input");
-                    }
-
-                    if (links != null && links.Count > 0)
-                        foreach (HtmlElement a in links)
+                        foreach (HtmlElement element in browser.Document.GetElementsByTagName(item.tag))
                         {
-                            a.Click -= A_Click;
-                            a.Click += A_Click;
+                            if (element.GetAttribute(item.type) == item.name)
+                            {
+                                element.OuterHtml = "";
+                            }
                         }
+
+                    }
+                    //if (DataContainer.Instance().Accion != "catalogo")
+                    //    return;
+
+          
                 }
+               
+              
             }
             catch (Exception)
             {
                 
                DataContainer.Instance().MainWndow.ErrorBehabior();
-            }
-          
+            } 
 
         }
+        private void Browser_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
+        {
+            //
+            foreach (HtmlElement element in browser.Document.GetElementsByTagName("a"))
+            {
+                try
+                {
+                    bool allow = false;
+                    foreach (var item in DataContainer.Instance().clickedButton.allowedurlscope)
+                    {
+                        string href = element.GetAttribute("href");
+                        if (href.StartsWith(item) == true)
+                        {
+                            allow = true; break;
+                        }
+
+                    }
+                    if (!allow)
+                    {
+                        var banurl = element.GetAttribute("href");
+                        var newouter = element.OuterHtml.Replace(banurl, "#");
+                        element.OuterHtml = newouter;
+                    }
+                    var targetnew = element.OuterHtml.Replace("_blank", "#");
+                    element.OuterHtml = targetnew;
+                }
+                catch (Exception)
+                {
+
+                    //continue;
+                }
+                
+
+            }
+            foreach (HtmlElement item in browser.Document.GetElementsByTagName("div"))
+            {
+                try
+                {
+                    if (item.GetAttribute("className").Contains("revistas") || item.GetAttribute("className").Contains("colecciones"))
+                    {
+                        foreach (HtmlElement a in item.GetElementsByTagName("a"))
+                        {
+                            bool allow = false;
+                            foreach (var url in DataContainer.Instance().clickedButton.allowedurlscope)
+                            {
+                                string href = a.GetAttribute("href");
+                                if (href.StartsWith(url) == true)
+                                {
+                                    allow = true; break;
+                                }
+                            }
+                            if (!allow)
+                            {
+                                var banurl = a.GetAttribute("href");
+                                var newouter = a.OuterHtml.Replace(banurl, "#");
+                                a.OuterHtml = newouter;
+                            }
+                            var targetnew = a.OuterHtml.Replace("_blank", "#");
+                            a.OuterHtml = targetnew;
+
+                        }
+
+
+                    }
+
+
+                    var aelements = browser.Document.GetElementsByTagName("a")
+                        .Cast<HtmlElement>().Where(b => b.GetAttribute("className") == "md-primoExplore-theme").ToList();
+
+
+                    if (aelements != null && aelements.Count > 0)
+                        foreach (HtmlElement a in aelements)
+                        {
+                            a.Click -= A_Click;
+                            a.Click += A_Click;
+                        }
+                }
+                catch (Exception)
+                {
+
+                    //continue;
+                }
+
+              
+            }
+        }
+
+
 
         protected override void OnClosing(CancelEventArgs e)
         {

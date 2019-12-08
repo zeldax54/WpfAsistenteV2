@@ -18,6 +18,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using System.Globalization;
 
 
 namespace WpfAsistente
@@ -58,11 +59,12 @@ namespace WpfAsistente
         readonly string _urlbibliotecadigital = ConfigurationManager.AppSettings["bibliotecadigital"];
         readonly string _urlbasedatos = ConfigurationManager.AppSettings["basedatos"];
         readonly int _timecapt = Convert.ToInt32(ConfigurationManager.AppSettings["captimer"]);
-        readonly int _timeinact = Convert.ToInt32(ConfigurationManager.AppSettings["inactimer"]);
-
+        readonly int _timeinact = Convert.ToInt32(ConfigurationManager.AppSettings["inactimer"]);    
+       
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             DataContainer.Instance().MainWndow = this;
+            DataContainer.Instance().DefaultButtonPos= Convert.ToBoolean(ConfigurationManager.AppSettings["startdefaultbuttons"]);
 
             _timer.Tick += _timer_Tick;
             _timer.Interval = new TimeSpan(0, 0, 0, _timecapt, 0);
@@ -73,9 +75,10 @@ namespace WpfAsistente
 
 
             Capt.OnCapturing += IsPerson;
-            Capt.OnNoCapturing += GoStart;           
-           //  showSerach();
-           ShowMenu();
+            Capt.OnNoCapturing += GoStart;
+            
+            // showSerach();
+            ShowMenu();
             // Hide();
         }
 
@@ -188,68 +191,98 @@ namespace WpfAsistente
           //  ShowMenu();
         }
 
-        private void _menu_OnmenuPost(string accion)
+        private void _menu_OnmenuPost(TypeClass.Button button)
         {
             try
             {
-                CloseMenu();
-                if (accion == "catalogo")
-                {
-                    DataContainer.Instance().Accion = "catalogo";
-                    DataContainer.Instance().VideoName = "catalogo.mp4";
-                    ShowVideoPlayer();
-                    PlayVideo?.Invoke(null);
-                    DataContainer.Instance().Url = _urlCatalogo;
-
-                    // DataContainer.Instance().Url = " file:///E:/descargas/patricio/6-4/cgisirsi.exe.html";
-
-                    ShowBrowser();
-                }
-                else if (accion == "infosearch")
-                {
-                    DataContainer.Instance().Accion = "infosearch";
-                    DataContainer.Instance().VideoName = "iaesearch.mp4";
-                    ShowVideoPlayer();
-                    PlayVideo?.Invoke(null);
-                    DataContainer.Instance().Url = _urlinfosearch;
-                    // DataContainer.Instance().Url = "http://chat.netlab.snet/channel/general";
-                    ShowBrowser();
-                }
-                else if (accion == "ejournals" || accion== "bibliotecadigital")
-                {
-                    DataContainer.Instance().Accion = accion;
-                    DataContainer.Instance().VideoName = accion+".mp4";
-                    ShowVideoPlayer();
-                    PlayVideo?.Invoke(null);
-                    if(accion== "ejournals")
-                    DataContainer.Instance().Url = _urlejournals;
-                    else
-                       DataContainer.Instance().Url = _urlbibliotecadigital;
-                     //  DataContainer.Instance().Url = "https://login.bidi.la/Saml/login/adfs.iae.edu.ar";
-                       // DataContainer.Instance().Url = "D:/DOCS/scrapsalva/data/20170607174732/index.html";
-                    ShowBrowser();
-                }
-                else if (accion == "basedatos")
-                {
-                    DataContainer.Instance().Accion = "basedatos";
-                    DataContainer.Instance().VideoName = "basesdedatos.mp4";
-                    ShowVideoPlayer();
-                    PlayVideo?.Invoke(null);
-                    DataContainer.Instance().Url = _urlbasedatos;
-                    ShowBrowser();
-                }
-                else if (accion == "serviciosbiblioteca" || accion == "devolucionlibros" ||
-                           accion == "unio" || accion == "estadotiempo")
-                {
-                    DataContainer.Instance().Accion = accion;
-                    DataContainer.Instance().VideoName = accion + ".mp4";
-                    ShowVideoFull();
-                }
-
-                else if (accion == "selfie")
-                {
+                CloseMenu();                         
+                DataContainer.Instance().Accion = button.Action;
+                DataContainer.Instance().VideoName = button.videoname;
+                DataContainer.Instance().Url = button.BrowserURL;
+                DataContainer.Instance().clickedButton = button;
+                if (button.Name == "Selfie")
                     ShowSelfie();
+                else if (button.Name == "estadotiempo")
+                {
+                      DataContainer.Instance().Accion = "estadotiempo";
+                      DataContainer.Instance().VideoName = button.videoname;
+                      ShowVideoFull();
                 }
+                else if (!button.OnlyVideo)
+                {
+                    ShowVideoPlayer();
+                    PlayVideo?.Invoke(null);
+                    ShowBrowser();
+                }
+                else {
+                    ShowVideoFull();
+                    PlayVideo?.Invoke(null);
+                }    
+                   
+
+
+
+
+
+
+
+                //if (accion == "catalogo")
+                //{
+                //    DataContainer.Instance().Accion = "catalogo";
+                //    DataContainer.Instance().VideoName = "catalogo.mp4";
+                //    ShowVideoPlayer();
+                //    PlayVideo?.Invoke(null);
+                //    DataContainer.Instance().Url = _urlCatalogo;
+
+                //    // DataContainer.Instance().Url = " file:///E:/descargas/patricio/6-4/cgisirsi.exe.html";
+
+                //    ShowBrowser();
+                //}
+                //else if (accion == "infosearch")
+                //{
+                //    DataContainer.Instance().Accion = "infosearch";
+                //    DataContainer.Instance().VideoName = "iaesearch.mp4";
+                //    ShowVideoPlayer();
+                //    PlayVideo?.Invoke(null);
+                //    DataContainer.Instance().Url = _urlinfosearch;
+                //    // DataContainer.Instance().Url = "http://chat.netlab.snet/channel/general";
+                //    ShowBrowser();
+                //}
+                //else if (accion == "ejournals" || accion== "bibliotecadigital")
+                //{
+                //    DataContainer.Instance().Accion = accion;
+                //    DataContainer.Instance().VideoName = accion+".mp4";
+                //    ShowVideoPlayer();
+                //    PlayVideo?.Invoke(null);
+                //    if(accion== "ejournals")
+                //    DataContainer.Instance().Url = _urlejournals;
+                //    else
+                //       DataContainer.Instance().Url = _urlbibliotecadigital;
+                //     //  DataContainer.Instance().Url = "https://login.bidi.la/Saml/login/adfs.iae.edu.ar";
+                //       // DataContainer.Instance().Url = "D:/DOCS/scrapsalva/data/20170607174732/index.html";
+                //    ShowBrowser();
+                //}
+                //else if (accion == "basedatos")
+                //{
+                //    DataContainer.Instance().Accion = "basedatos";
+                //    DataContainer.Instance().VideoName = "basesdedatos.mp4";
+                //    ShowVideoPlayer();
+                //    PlayVideo?.Invoke(null);
+                //    DataContainer.Instance().Url = _urlbasedatos;
+                //    ShowBrowser();
+                //}
+                //else if (accion == "serviciosbiblioteca" || accion == "devolucionlibros" ||
+                //           accion == "unio" || accion == "estadotiempo")
+                //{
+                //    DataContainer.Instance().Accion = accion;
+                //    DataContainer.Instance().VideoName = accion + ".mp4";
+                //    ShowVideoFull();
+                //}
+
+                //else if (accion == "selfie")
+                //{
+                //    ShowSelfie();
+                //}
             }
             catch (Exception)
             {

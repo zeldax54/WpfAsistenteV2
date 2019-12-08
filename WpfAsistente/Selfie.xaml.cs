@@ -26,7 +26,7 @@ using ZXing.Common;
 using MessageBox = System.Windows.Forms.MessageBox;
 using Path = System.IO.Path;
 using PixelFormat = System.Drawing.Imaging.PixelFormat;
-
+using System.Net;
 
 namespace WpfAsistente
 {
@@ -181,13 +181,10 @@ namespace WpfAsistente
             //Copiando a Remoto
             try
             {
-
-                using (NetworkShareAccesser.Access(
-                     _nombrepcLan, _dominioLan, _usuarioLan, _passwordLan))
+                using (var client = new WebClient())
                 {
-                    var destino = _fullrutaLan + namepic;
-                    File.Copy(@dir,destino ,true);
-                    
+                    client.Credentials = new NetworkCredential(_usuarioLan, _passwordLan);                    
+                    client.UploadFile(_fullrutaLan+ namepic, WebRequestMethods.Ftp.UploadFile, dir);
                 }
             }
             catch (Exception w)

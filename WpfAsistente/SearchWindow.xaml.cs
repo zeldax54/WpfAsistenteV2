@@ -43,10 +43,7 @@ namespace WpfAsistente
             _buscandoVideos = Helper.ListFiles("enBusqueda");
             mediaElement.MediaEnded += MediaElement_MediaEnded;
             mediaElement.Source = new Uri(Helper.GetFile(_buscandoVideos), UriKind.Absolute);
-
             mediaElement.MouseDown += MediaElement_MouseDown;
-
-
         }
 
         private void MediaElement_MouseDown(object sender, MouseButtonEventArgs e)

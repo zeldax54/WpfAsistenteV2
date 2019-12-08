@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,7 +15,12 @@ using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using System.Xml;
+using System.Xml.Linq;
 using MessageBox = System.Windows.Forms.MessageBox;
+
+using System.Globalization;
+using System.ComponentModel;
 
 namespace WpfAsistente
 {
@@ -31,14 +37,17 @@ namespace WpfAsistente
            
         }
 
-        public delegate void OnMenuManager(string accion);
+        public delegate void OnMenuManager(WpfAsistente.TypeClass.Button button);
         public event OnMenuManager OnmenuPost;
+        private BackgroundWorker worker=new BackgroundWorker();
+        private Timer timer;
+        private bool _enableRealTimeEdit = false;
 
         private void Menu_OnInitialized(object sender, EventArgs e)
         {
 
-           
-
+            CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-US");
+            
             DataContainer.Instance().IsinMenu = true;
             DataContainer.Instance().MenuWndow = this;
             DataContainer.Instance().Actividad = true;
@@ -47,67 +56,154 @@ namespace WpfAsistente
             Height = SystemParameters.FullPrimaryScreenHeight;
             mediaElement.Width = Width;
             mediaElement.Height = Height;
-
-            //Eventos
-            catalogo.Click += Catalogo_Click;
-            infosearch.Click += Infosearch_Click;
-            ejournals.Click += Ejournals_Click;
-            basedatos.Click += Basedatos_Click;
-            serviciosbiblioteca.Click += FullVideo_Click;
-            devolucionlibros.Click += FullVideo_Click;
-            bibliotecadigital.Click += FullVideo_Click;
-            unio.Click += FullVideo_Click;
-            estadotiempo.Click += FullVideo_Click;
-            selfie.Click += FullVideo_Click;
-
-            mediaElement.Source= new Uri(Helper.GetVideo("menu.mp4"), UriKind.Absolute);
-            
-            
-             //Formateando botones
-             Helper.ResizeButtons(new []
-             {
-                 infosearch,catalogo,ejournals,basedatos,serviciosbiblioteca,devolucionlibros 
-             ,bibliotecadigital,unio
-             }, 18.75);
-            Helper.ResizeLast(new[] {estadotiempo,selfie}, 6.14583,27.7);
-
-
-            //Ubicando botones
-            //First Line start from bottom
-            Helper.to_PositionButton(infosearch, 2.5, 15);
-
-            Helper.to_PositionButton(catalogo, 2.5, 35);
-
-            Helper.to_PositionButton(ejournals, 5, 55);
-
-            Helper.to_PositionButton(basedatos, 20, 70);
-
-            //Second Line start from up
-            Helper.to_PositionButton(serviciosbiblioteca, 20, 70,true);
-
-            Helper.to_PositionButton(devolucionlibros, 2.5, 55,true);
-
-            Helper.to_PositionButton(bibliotecadigital, 2.5, 35, true);
-
-            Helper.to_PositionButton(unio, 2.5, 15, true);
-
-            //Ultimos (tiempo y selfie)
-            Helper.to_PositionButton(estadotiempo, 2.5, 5);
-            Helper.to_PositionButton(selfie, 2.5, 5,true);
-            //
-           
-            //
-
             Storyboard s = (Storyboard)TryFindResource("MStoryboardy");
-            s.Begin();
-            //Start Timer
+
+            //Eventos           
+            mediaElement.Source= new Uri(Helper.GetVideo("menu.mp4"), UriKind.Absolute);
+            //Dynamic buttons                  
+            XmlDocument _xmlDoc = new XmlDocument();
+            _xmlDoc.Load(@"localconfigs.xml");
+            MyXmlParser parser = new MyXmlParser(_xmlDoc);
+            if(DataContainer.Instance().menuButtons==null)
+              DataContainer.Instance().menuButtons =  parser.GetTypeListFromXML<TypeClass.Button>("Button");
+            var botones = DataContainer.Instance().menuButtons;
+            var sb = new Storyboard();
+            NameScope.SetNameScope(this, new NameScope());
+            bool isdefpos = DataContainer.Instance().DefaultButtonPos;
+            decimal startpos = 0;
+            foreach (var boton in botones)
+            {
+                Button newBtn = new Button();                
+                newBtn.Name = boton.Name;
+                this.RegisterName(newBtn.Name, newBtn);
+                newBtn.Content = "";
+                newBtn.Opacity = 0;
+                Image img = new Image();
+                string strUri2 = Directory.GetCurrentDirectory() + $"/Img/MenuButtons/{boton.ImageName}";
+                img.Source = new BitmapImage(new Uri(strUri2));
+                img.Stretch = Stretch.Uniform;
+                newBtn.Background = new ImageBrush(img.Source);
+                newBtn.RenderTransformOrigin = new Point(0.5, 0.5);
+                newBtn.BorderThickness = new Thickness(0);
+                newBtn.Style = (Style)this.Resources["MyButtonStyle"];
+                if (isdefpos) {
+                    Helper.to_PositionButton(newBtn, (double)startpos, 50, false);
+                    startpos += 7;
+                }
+                else
+                Helper.to_PositionButton(newBtn, (double)boton.Postition, (double)boton.FromBotton,boton.FromRight);
+                Helper.ResizeButton(newBtn, (double)boton.Size);
+                /*Animation 1*/               
+                DoubleAnimation doubleAnimationOpacity = new DoubleAnimation();
+                doubleAnimationOpacity.BeginTime = TimeSpan.FromMilliseconds((double)boton.startAnimationTime);
+                doubleAnimationOpacity.AccelerationRatio = 0.3;
+                doubleAnimationOpacity.DecelerationRatio = .4;
+                doubleAnimationOpacity.From = 0;
+                doubleAnimationOpacity.To = 100;
+                sb.Children.Add(doubleAnimationOpacity);
+                Storyboard.SetTargetName(doubleAnimationOpacity, boton.Name);
+                Storyboard.SetTargetProperty(doubleAnimationOpacity, new PropertyPath(Rectangle.OpacityProperty));
+                ///*Animation 2 */
+                //DoubleAnimation doubleAnimationWidth = new DoubleAnimation();
+                //doubleAnimationWidth.BeginTime = TimeSpan.FromMilliseconds((double)boton.startAnimationTime);
+                //doubleAnimationWidth.AccelerationRatio = 0.3;
+                //doubleAnimationWidth.DecelerationRatio = .4;
+                //doubleAnimationWidth.By = 20;
+                //doubleAnimationWidth.AutoReverse = true;
+                //sb.Children.Add(doubleAnimationWidth);
+                //Storyboard.SetTargetName(doubleAnimationWidth, boton.Name);
+                //Storyboard.SetTargetProperty(doubleAnimationWidth, new PropertyPath(Rectangle.WidthProperty));
+                ///*Animation 3*/
+                //DoubleAnimation doubleAnimationHeight = new DoubleAnimation();
+                //doubleAnimationHeight.BeginTime = TimeSpan.FromMilliseconds((double)boton.startAnimationTime);
+                //doubleAnimationHeight.AccelerationRatio = 0.3;
+                //doubleAnimationHeight.DecelerationRatio = .4;
+                //doubleAnimationHeight.By = 20;
+                //doubleAnimationHeight.AutoReverse = true;
+                //sb.Children.Add(doubleAnimationHeight);
+                //Storyboard.SetTargetName(doubleAnimationHeight, boton.Name);
+                //Storyboard.SetTargetProperty(doubleAnimationHeight, new PropertyPath(Rectangle.HeightProperty));
+                //
+                newBtn.Click += NewBtn_Click;
+                this.canvasContainer.Children.Add(newBtn);
+            }
+
+
+         
+            
+             //Formateando botones last       
+            //  Helper.ResizeLast(new[] {estadotiempo,selfie}, 6.14583,27.7);
+
+            
+            sb.Begin(this,true);         
             DataContainer.Instance().MainWndow.TimerActivity.Start();
+            worker.DoWork += Worker_DoWork;
+            
+            this.KeyDown += Menu_KeyDown;
+            worker.RunWorkerAsync();
         }
+
+        private void Menu_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (Keyboard.GetKeyStates(Key.Q) == KeyStates.Down && Keyboard.GetKeyStates(Key.W) == KeyStates.Down) {
+                _enableRealTimeEdit = !_enableRealTimeEdit;
+                CreateHelperButon(!_enableRealTimeEdit);
+            } 
+               
+        }
+
+
+
+
+        private void Timer_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            try
+            {
+                if (_enableRealTimeEdit)
+                {
+                    this.Dispatcher.Invoke((Action)(() =>
+                    {
+                        XmlDocument _xmlDoc = new XmlDocument();
+                        _xmlDoc.Load(@"localconfigs.xml");
+                        MyXmlParser parser = new MyXmlParser(_xmlDoc);
+                        var botones = parser.GetTypeListFromXML<TypeClass.Button>("Button");
+                        DataContainer.Instance().menuButtons = botones;
+                        foreach (var boton in botones)
+                        {
+                            var button = (Button)this.FindName(boton.Name);
+                            //  Button button = Helper.FindChild<Button>(this.canvasContainer,boton.Name);
+                            Helper.to_PositionButton(button, (double)boton.Postition, (double)boton.FromBotton, boton.FromRight);
+                            Helper.ResizeButton(button, (double)boton.Size);
+                        }
+                    }));
+                }
+            }
+            catch (Exception ee)
+            {
+                System.Diagnostics.Debug.WriteLine(ee.Message);
+            }                  
+        }
+
+        private void Worker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            timer = new Timer();
+            timer.Elapsed += Timer_Elapsed;
+            timer.Start();
+        }
+
+        private void NewBtn_Click(object sender, RoutedEventArgs e)
+        {
+            var boject = (Button)sender;
+            var b = DataContainer.Instance().menuButtons.Where(a => a.Name == boject.Name).First();
+            OnmenuPost?.Invoke(b);
+        }
+
+
 
         private void FullVideo_Click(object sender, RoutedEventArgs e)
         {
-            var name = ((Button) sender).Name;
-            OnmenuPost?.Invoke(name);
+            var b = ((TypeClass.Button) sender);
+            OnmenuPost?.Invoke(b);
         }
 
 
@@ -115,24 +211,34 @@ namespace WpfAsistente
         {
             DataContainer.Instance().IsinMenu = false;
         }
+      
 
-        private void Catalogo_Click(object sender, RoutedEventArgs e)
-        {
-            OnmenuPost?.Invoke("catalogo");
-        }
-        private void Infosearch_Click(object sender, RoutedEventArgs e)
-        {
-            OnmenuPost?.Invoke("infosearch");
-        }
+        void CreateHelperButon(bool destroy) {            
+            Button newBtn = new Button();
+            Button foundTextBox =
+              Helper.FindChild<Button>(this.canvasContainer, "helpbutton");
+            if (foundTextBox == null)
+            {
+                newBtn.Name = "helpbutton";
+                this.RegisterName(newBtn.Name, newBtn);
+                newBtn.Content = "";
+                newBtn.Opacity = 0;
+                Image img = new Image();
+                string strUri2 = Directory.GetCurrentDirectory() + $"/Img/helpers/WX_circle_green.png";
+                img.Source = new BitmapImage(new Uri(strUri2));
+                img.Stretch = Stretch.Uniform;
+                newBtn.Background = new ImageBrush(img.Source);
+                newBtn.RenderTransformOrigin = new Point(0.5, 0.5);
+                newBtn.BorderThickness = new Thickness(0);
+                newBtn.Style = (Style)this.Resources["MyButtonStyle"];
+                newBtn.Opacity = 100;
+                Helper.to_PositionButton(newBtn, 50, 50);
+                Helper.ResizeButton(newBtn, 10);
+                this.canvasContainer.Children.Add(newBtn);
+            }
+            else                
+               foundTextBox.Opacity = destroy?0:100;           
+        }     
 
-        private void Ejournals_Click(object sender, RoutedEventArgs e)
-        {
-            OnmenuPost?.Invoke("ejournals");
-        }
-        private void Basedatos_Click(object sender, RoutedEventArgs e)
-        {
-            OnmenuPost?.Invoke("basedatos");
-        }
-        
     }
 }

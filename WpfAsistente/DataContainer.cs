@@ -12,23 +12,15 @@ namespace WpfAsistente
     public class DataContainer
     {
         private static DataContainer oInstance;
-
-
         public bool Actividad;
         public BitmapSource Result;
-
         public double Nocaptimevar;
         public double Elapsedtime;
-
         public bool IsSearching;
         public bool IsinMenu;
-
-        public float InteractingTime;
-       
+        public float InteractingTime;       
         public bool GoCaputure=true;
-
         public int CapturingTime = 3;
-
         public MainWindow MainWndow;
         public Menu MenuWndow;
         public SearchWindow SearchWindow;
@@ -39,7 +31,6 @@ namespace WpfAsistente
         public bool IsInBrowsewr;
         public Browser Browser;
         public string Url;
-
         public string VideoName;
         public string Accion;
         //Videos Full
@@ -49,24 +40,19 @@ namespace WpfAsistente
         public Selfie Selfie;
         public  bool IsinSelfie;
         public bool IsInVideoFull;
+        public List<TypeClass.Button> menuButtons;
+        public TypeClass.Button clickedButton;
+        public bool DefaultButtonPos;
+
 
         protected DataContainer()
-        {
-            
+        {            
         }
-
-      
-
-
         public static DataContainer Instance()
         {
             if (oInstance == null)
                 oInstance = new DataContainer();
             return oInstance;
         }
-
-
-
-
     }
 }

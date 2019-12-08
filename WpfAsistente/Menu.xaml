@@ -46,7 +46,7 @@
                                 <DoubleAnimation By="-20" Duration="0:0:0.1" Storyboard.TargetProperty="(Button.Height) " AutoReverse="True"/>
                                 <DoubleAnimation By="-20" Duration="0:0:0.1" Storyboard.TargetProperty="(Button.Width)" AutoReverse="True"/>
                             </Storyboard>
-                          
+
                         </BeginStoryboard>
                     </EventTrigger.Actions>
                 </EventTrigger>
@@ -216,7 +216,7 @@
         </Storyboard>
 
     </Window.Resources>
-    
+
 
 
     <Canvas x:Name="canvasContainer" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#4C0AB5F5">
@@ -318,6 +318,7 @@
                 </TransformGroup>
             </Button.RenderTransform>
         </Button>
+      
 
     </Canvas>
 
