@@ -100,7 +100,7 @@
         
         <Canvas x:Name="zocalo" Grid.Column="0" Grid.Row="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
             <Canvas.Background>
-                <ImageBrush ImageSource="pack://siteoforigin:,,,/Resources/Zocalo.jpg" />
+                <ImageBrush ImageSource="pack://siteoforigin:,,,/Resources/Zocalo.png" />
             </Canvas.Background>
        
         </Canvas>

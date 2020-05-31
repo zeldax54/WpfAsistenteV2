@@ -63,23 +63,32 @@ namespace WpfAsistente
        
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            DataContainer.Instance().MainWndow = this;
-            DataContainer.Instance().DefaultButtonPos= Convert.ToBoolean(ConfigurationManager.AppSettings["startdefaultbuttons"]);
+            try
+            {
+                DataContainer.Instance().MainWndow = this;
+                DataContainer.Instance().DefaultButtonPos = Convert.ToBoolean(ConfigurationManager.AppSettings["startdefaultbuttons"]);
 
-            _timer.Tick += _timer_Tick;
-            _timer.Interval = new TimeSpan(0, 0, 0, _timecapt, 0);
-            _timer.Start();
+                _timer.Tick += _timer_Tick;
+                _timer.Interval = new TimeSpan(0, 0, 0, _timecapt, 0);
+                _timer.Start();
 
-            TimerActivity.Tick += _timerActiviti_Tick;
-            TimerActivity.Interval = new TimeSpan(0, 0, _timeinact, 0, 0);
+                TimerActivity.Tick += _timerActiviti_Tick;
+                TimerActivity.Interval = new TimeSpan(0, 0, _timeinact, 0, 0);
 
 
-            Capt.OnCapturing += IsPerson;
-            Capt.OnNoCapturing += GoStart;
-            
-            // showSerach();
-            ShowMenu();
-            // Hide();
+                Capt.OnCapturing += IsPerson;
+                Capt.OnNoCapturing += GoStart;
+
+              //  showSerach();
+                  ShowMenu();
+                // Hide();
+            }
+            catch (Exception ee)
+            {
+
+                System.Windows.Forms.MessageBox.Show(ee.Message);
+            }
+           
         }
 
      

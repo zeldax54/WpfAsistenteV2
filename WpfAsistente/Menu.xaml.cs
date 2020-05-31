@@ -71,11 +71,14 @@ namespace WpfAsistente
             NameScope.SetNameScope(this, new NameScope());
             bool isdefpos = DataContainer.Instance().DefaultButtonPos;
             decimal startpos = 0;
+          
             foreach (var boton in botones)
             {
-                Button newBtn = new Button();                
+                if (boton.Name.ToLower() == "atras")
+                    continue;
+                Button newBtn = new Button();
                 newBtn.Name = boton.Name;
-                this.RegisterName(newBtn.Name, newBtn);
+                RegisterName(newBtn.Name, newBtn);
                 newBtn.Content = "";
                 newBtn.Opacity = 0;
                 Image img = new Image();
@@ -85,15 +88,16 @@ namespace WpfAsistente
                 newBtn.Background = new ImageBrush(img.Source);
                 newBtn.RenderTransformOrigin = new Point(0.5, 0.5);
                 newBtn.BorderThickness = new Thickness(0);
-                newBtn.Style = (Style)this.Resources["MyButtonStyle"];
-                if (isdefpos) {
+                newBtn.Style = (Style)Resources["MyButtonStyle"];
+                if (isdefpos)
+                {
                     Helper.to_PositionButton(newBtn, (double)startpos, 50, false);
                     startpos += 7;
                 }
                 else
-                Helper.to_PositionButton(newBtn, (double)boton.Postition, (double)boton.FromBotton,boton.FromRight);
-                Helper.ResizeButton(newBtn, (double)boton.Size);
-                /*Animation 1*/               
+                    Helper.to_PositionButton(newBtn, (double)boton.Postition, (double)boton.FromBotton, boton.FromRight);
+                Helper.ResizeButtonProportional(newBtn, (double)boton.Size);
+                /*Animation 1*/
                 DoubleAnimation doubleAnimationOpacity = new DoubleAnimation();
                 doubleAnimationOpacity.BeginTime = TimeSpan.FromMilliseconds((double)boton.startAnimationTime);
                 doubleAnimationOpacity.AccelerationRatio = 0.3;
@@ -124,17 +128,18 @@ namespace WpfAsistente
                 //Storyboard.SetTargetName(doubleAnimationHeight, boton.Name);
                 //Storyboard.SetTargetProperty(doubleAnimationHeight, new PropertyPath(Rectangle.HeightProperty));
                 //
-                newBtn.Click += NewBtn_Click;
+                if (!newBtn.Name.ToLower().Contains("zocalo"))
+                    newBtn.Click += NewBtn_Click;
                 this.canvasContainer.Children.Add(newBtn);
             }
 
 
-         
-            
-             //Formateando botones last       
+
+
+            //Formateando botones last       
             //  Helper.ResizeLast(new[] {estadotiempo,selfie}, 6.14583,27.7);
 
-            
+
             sb.Begin(this,true);         
             DataContainer.Instance().MainWndow.TimerActivity.Start();
             worker.DoWork += Worker_DoWork;
@@ -145,7 +150,7 @@ namespace WpfAsistente
 
         private void Menu_KeyDown(object sender, KeyEventArgs e)
         {
-            if (Keyboard.GetKeyStates(Key.Q) == KeyStates.Down && Keyboard.GetKeyStates(Key.W) == KeyStates.Down) {
+            if (Keyboard.GetKeyStates(Key.Q) == KeyStates.Down) {
                 _enableRealTimeEdit = !_enableRealTimeEdit;
                 CreateHelperButon(!_enableRealTimeEdit);
             } 
@@ -173,7 +178,7 @@ namespace WpfAsistente
                             var button = (Button)this.FindName(boton.Name);
                             //  Button button = Helper.FindChild<Button>(this.canvasContainer,boton.Name);
                             Helper.to_PositionButton(button, (double)boton.Postition, (double)boton.FromBotton, boton.FromRight);
-                            Helper.ResizeButton(button, (double)boton.Size);
+                            Helper.ResizeButtonProportional(button, (double)boton.Size);
                         }
                     }));
                 }
