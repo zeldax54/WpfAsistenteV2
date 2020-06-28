@@ -317,6 +317,9 @@
     <PackageReference Include="CefSharp.Wpf">
       <Version>81.3.100</Version>
     </PackageReference>
+    <PackageReference Include="WPFTabTip">
+      <Version>1.2.2</Version>
+    </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

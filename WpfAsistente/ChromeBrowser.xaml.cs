@@ -23,7 +23,7 @@ using Microsoft.Win32;
 using mshtml;
 using MessageBox = System.Windows.MessageBox;
 using CefSharp;
-
+using WPFTabTip;
 
 namespace WpfAsistente
 {
@@ -79,8 +79,9 @@ namespace WpfAsistente
 
             cBrowser.Width= SystemParameters.FullPrimaryScreenWidth;
             cBrowser.Height = Helper.Porciento(browserheight, Height);
-//
-          
+            //
+
+            TabTipAutomation.BindTo<System.Windows.Controls.TextBox>();
 
 
 
@@ -103,11 +104,51 @@ namespace WpfAsistente
             DataContainer.Instance().MainWndow.TimerActivity.Start();
             //
             //Boton Volver
-            //Volver.Click += Volver_Click;
-            //Volver2.Click += Volver_Click;
+           // Volver.Click += Volver_Click;
+            Volver2.Click += Volver_Click;
             //
+           
             cBrowser.Address = (DataContainer.Instance().Url);
+            cBrowser.JavascriptMessageReceived += OnBrowserJavascriptMessageReceived;
+            cBrowser.FrameLoadEnd += OnFrameLoadEnd;
         }
+
+        public void OnFrameLoadEnd(object sender, FrameLoadEndEventArgs e)
+        {
+            if (e.Frame.IsMain)
+            {
+                //In the main frame we inject some javascript that's run on mouseUp
+                //You can hook any javascript event you like.
+                cBrowser.ExecuteScriptAsync(@"
+
+              document.querySelectorAll('input').forEach(element => element.addEventListener('click', ()=>{CefSharp.PostMessage('asdasd');}));             
+
+
+	  
+           
+	         ");
+            }
+        }
+
+        private void OnBrowserJavascriptMessageReceived(object sender, JavascriptMessageReceivedEventArgs e)
+        {
+            var windowSelection = (string)e.Message;
+            VirtualKeyBoardHelper.AttachTabTip();
+
+        }
+       
+
+
+        private void CBrowser_LoadingStateChanged(object sender, LoadingStateChangedEventArgs e)
+        {
+          
+        }
+
+
+   
+      
+
+      
 
         private void NewBtn_Click(object sender, RoutedEventArgs e)
         {
@@ -138,9 +179,7 @@ namespace WpfAsistente
 
         private void Volver_Click(object sender, RoutedEventArgs e)
         {
-            DataContainer.Instance().MainWndow.CloseVideoPlayer();
-            DataContainer.Instance().MainWndow.ShowMenu();
-            Close();
+            cBrowser.ExecuteScriptAsync("history.back()");
 
         }
 
