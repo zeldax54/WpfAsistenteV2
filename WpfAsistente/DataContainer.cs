@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
@@ -22,6 +23,7 @@ namespace WpfAsistente
         public bool GoCaputure=true;
         public int CapturingTime = 3;
         public MainWindow MainWndow;
+        public Canvas MainCanvas;
         public Menu MenuWndow;
         public SearchWindow SearchWindow;
         //VideoPlayer
@@ -29,7 +31,11 @@ namespace WpfAsistente
         public bool IsinVideoPlayer;
         //Browser
         public bool IsInBrowsewr;
+        public bool isIncBrowser;
+
         public Browser Browser;
+        public ChromeBrowser cBrowser;
+
         public string Url;
         public string VideoName;
         public string Accion;

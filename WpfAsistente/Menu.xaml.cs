@@ -107,35 +107,10 @@ namespace WpfAsistente
                 sb.Children.Add(doubleAnimationOpacity);
                 Storyboard.SetTargetName(doubleAnimationOpacity, boton.Name);
                 Storyboard.SetTargetProperty(doubleAnimationOpacity, new PropertyPath(Rectangle.OpacityProperty));
-                ///*Animation 2 */
-                //DoubleAnimation doubleAnimationWidth = new DoubleAnimation();
-                //doubleAnimationWidth.BeginTime = TimeSpan.FromMilliseconds((double)boton.startAnimationTime);
-                //doubleAnimationWidth.AccelerationRatio = 0.3;
-                //doubleAnimationWidth.DecelerationRatio = .4;
-                //doubleAnimationWidth.By = 20;
-                //doubleAnimationWidth.AutoReverse = true;
-                //sb.Children.Add(doubleAnimationWidth);
-                //Storyboard.SetTargetName(doubleAnimationWidth, boton.Name);
-                //Storyboard.SetTargetProperty(doubleAnimationWidth, new PropertyPath(Rectangle.WidthProperty));
-                ///*Animation 3*/
-                //DoubleAnimation doubleAnimationHeight = new DoubleAnimation();
-                //doubleAnimationHeight.BeginTime = TimeSpan.FromMilliseconds((double)boton.startAnimationTime);
-                //doubleAnimationHeight.AccelerationRatio = 0.3;
-                //doubleAnimationHeight.DecelerationRatio = .4;
-                //doubleAnimationHeight.By = 20;
-                //doubleAnimationHeight.AutoReverse = true;
-                //sb.Children.Add(doubleAnimationHeight);
-                //Storyboard.SetTargetName(doubleAnimationHeight, boton.Name);
-                //Storyboard.SetTargetProperty(doubleAnimationHeight, new PropertyPath(Rectangle.HeightProperty));
-                //
-                if (!newBtn.Name.ToLower().Contains("zocalo"))
+               if (!newBtn.Name.ToLower().Contains("zocalo"))
                     newBtn.Click += NewBtn_Click;
                 this.canvasContainer.Children.Add(newBtn);
             }
-
-
-
-
             //Formateando botones last       
             //  Helper.ResizeLast(new[] {estadotiempo,selfie}, 6.14583,27.7);
 

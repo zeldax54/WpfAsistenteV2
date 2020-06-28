@@ -1,4 +1,4 @@
-﻿<Window x:Class="WpfAsistente.Browser"
+﻿<Window x:Class="WpfAsistente.ChromeBrowser"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -9,7 +9,7 @@
         ResizeMode="NoResize"
      
         Initialized="Browser_OnInitialized"
-        xmlns:wf="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms" 
+        xmlns:wf="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms" xmlns:wpf="clr-namespace:CefSharp.Wpf;assembly=CefSharp.Wpf"
         WindowStyle="None"
         >
 
@@ -80,25 +80,14 @@
 
         </Canvas>
 
-      
-            <WindowsFormsHost Grid.Column="0" Grid.Row="1" x:Name="BrowserFormsHost">
-               <wf:WebBrowser x:Name="browser" ScrollBarsEnabled="True" Visible="True"></wf:WebBrowser>
-            </WindowsFormsHost>
 
-        <!--<Canvas x:Name="canvasContainerLine2" Grid.Column="0" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#00175b">
-            <Button x:Name="Volver" Content="" Canvas.Right="0" Canvas.Top="0"   Width="179" Height="177" BorderThickness="0" Style="{StaticResource MyButtonStyle}" Opacity="100">
-                <Button.Effect>
-                    <DropShadowEffect/>
-                </Button.Effect>
 
-                <Button.Background>
-                    <ImageBrush ImageSource="pack://siteoforigin:,,,/Resources/Volver.png" />
-                </Button.Background>
-            </Button>
-        </Canvas>-->
+        <Border Grid.Row="1" BorderBrush="Gray" BorderThickness="0,1">
+            <wpf:ChromiumWebBrowser x:Name="cBrowser" />
+          </Border>
 
-        
-        <Canvas x:Name="zocalo" Grid.Column="0" Grid.Row="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
+
+                <Canvas x:Name="zocalo" Grid.Column="0" Grid.Row="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
             <Canvas.Background>
                 <ImageBrush ImageSource="pack://siteoforigin:,,,/Resources/Zocalo.png" />
             </Canvas.Background>

@@ -112,7 +112,7 @@ namespace WpfAsistente
                 System.Xml.Serialization.XmlSerializer ser = new System.Xml.Serialization.XmlSerializer(typeof(T));
                 using (StringReader sr = new StringReader(nodo.OuterXml))
                 {
-                    final.Add((T)ser.Deserialize(sr)); ;
+                    final.Add((T)ser.Deserialize(sr));
                 }         
             }
             return final;

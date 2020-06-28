@@ -9,6 +9,7 @@ namespace WpfAsistente.TypeClass
 
 
 
+
     // NOTE: Generated code may require at least .NET Framework 4.5 or .NET Core/Standard 2.0.
     /// <remarks/>
     [System.SerializableAttribute()]
@@ -29,6 +30,8 @@ namespace WpfAsistente.TypeClass
         private string browserURLField;
 
         private bool onlyVideoField;
+
+        private bool onlyBrowserField;
 
         private bool fromRightField;
 
@@ -119,6 +122,19 @@ namespace WpfAsistente.TypeClass
             set
             {
                 this.onlyVideoField = value;
+            }
+        }
+
+        /// <remarks/>
+        public bool OnlyBrowser
+        {
+            get
+            {
+                return this.onlyBrowserField;
+            }
+            set
+            {
+                this.onlyBrowserField = value;
             }
         }
 
@@ -268,10 +284,6 @@ namespace WpfAsistente.TypeClass
             }
         }
     }
-
-
-
-
 
 
 

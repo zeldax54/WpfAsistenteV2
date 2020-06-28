@@ -19,6 +19,7 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using Microsoft.Win32;
 using mshtml;
 using MessageBox = System.Windows.MessageBox;
 
@@ -36,12 +37,15 @@ namespace WpfAsistente
         readonly double zocaloheight = Convert.ToDouble(ConfigurationManager.AppSettings["zocaloheight"]);
         readonly double volverporcalto = Convert.ToDouble(ConfigurationManager.AppSettings["volverporcalto"]);
         readonly double volverporcancho = Convert.ToDouble(ConfigurationManager.AppSettings["volverporcancho"]);
+        readonly double browserheight= Convert.ToDouble(ConfigurationManager.AppSettings["browserheight"]);
         BackgroundWorker worker;
         public delegate void OnMenuManager(WpfAsistente.TypeClass.Button button);
         public event OnMenuManager OnmenuPost;
+        bool OnlyBrowser;
 
-        public Browser()
+        public Browser(bool pOnlyBrowser=false)
         {
+            OnlyBrowser = pOnlyBrowser;
             InitializeComponent();
         }
 
@@ -50,102 +54,56 @@ namespace WpfAsistente
      
 
         private void Browser_OnInitialized(object sender, EventArgs e)
-        {
+        {          
+
+          
+
             DataContainer.Instance().IsInBrowsewr = true;
             DataContainer.Instance().Browser = this;
+            if (!OnlyBrowser)
+            {
+                double altoVideoP = DataContainer.Instance().VideoPlayer.Height;
 
-            double altoVideoP = DataContainer.Instance().VideoPlayer.Height;
-
-            Helper.ResizeScreen(SystemParameters.FullPrimaryScreenHeight-altoVideoP,
-            SystemParameters.FullPrimaryScreenWidth, this, altoVideoP, 0, 0, 0);
+                Helper.ResizeScreen(SystemParameters.FullPrimaryScreenHeight - altoVideoP,
+                SystemParameters.FullPrimaryScreenWidth, this, altoVideoP, 0, 0, 0);
+            }
+            else {
+                Helper.ResizeScreen(SystemParameters.FullPrimaryScreenHeight,
+                   SystemParameters.FullPrimaryScreenWidth, this, 0, 0, 0, 0);
+            }
+            
 
             canvasContainerLine.Width = SystemParameters.FullPrimaryScreenWidth;
             canvasContainerLine.Height = Helper.Porciento(5, SystemParameters.FullPrimaryScreenHeight);
 
             BrowserFormsHost.Width= SystemParameters.FullPrimaryScreenWidth;
-            BrowserFormsHost.Height = Helper.Porciento(75, Height);
+            BrowserFormsHost.Height = Helper.Porciento(browserheight, Height);
 
-            canvasContainerLine2.Width = SystemParameters.FullPrimaryScreenWidth;
-            canvasContainerLine2.Height = Helper.Porciento(5, SystemParameters.FullPrimaryScreenHeight);
+          
 
 
 
             zocalo.Width = SystemParameters.FullPrimaryScreenWidth;
             zocalo.Height = Helper.Porciento(zocaloheight, Height);
             
-            Helper.ResizeLast(new [] {Volver,Volver2}, volverporcalto, volverporcancho);
+            Helper.ResizeLast(new [] {Volver2}, volverporcalto, volverporcancho);
             //Posicionar label
 
             //FooterBUttons()
             var footer = Helper.GetFooter();
             bool isdefpos = DataContainer.Instance().DefaultButtonPos;
             decimal startpos = 0;
-            var sb = new Storyboard();
             NameScope.SetNameScope(this, new NameScope());
-            foreach (var boton in footer)
-            {
-                System.Windows.Controls.Button newBtn = new System.Windows.Controls.Button();
-                newBtn.Name = boton.Name;
-                RegisterName(newBtn.Name, newBtn);
-                newBtn.Content = "";
-                newBtn.Opacity = 0;
-                Image img = new Image();
-                string strUri2 = Directory.GetCurrentDirectory() + $"/Img/MenuButtons/{boton.ImageName}";
-                img.Source = new BitmapImage(new Uri(strUri2));
-                img.Stretch = Stretch.Uniform;
-                newBtn.Background = new ImageBrush(img.Source);
-                newBtn.RenderTransformOrigin = new Point(0.5, 0.5);
-                newBtn.BorderThickness = new Thickness(0);
-                newBtn.Style = (Style)Resources["MyButtonStyle"];
-                if (isdefpos)
-                {
-                    Helper.to_PositionButton(newBtn, (double)startpos, 50, false);
-                    startpos += 7;
-                }
-                else
-                    Helper.to_PositionButton(newBtn, (double)boton.Postition, (double)boton.FromBotton, boton.FromRight);
-                Helper.ResizeButtonProportional(newBtn, (double)boton.Size);
-                /*Animation 1*/
-                DoubleAnimation doubleAnimationOpacity = new DoubleAnimation();
-                doubleAnimationOpacity.BeginTime = TimeSpan.FromMilliseconds((double)boton.startAnimationTime);
-                doubleAnimationOpacity.AccelerationRatio = 0.3;
-                doubleAnimationOpacity.DecelerationRatio = .4;
-                doubleAnimationOpacity.From = 0;
-                doubleAnimationOpacity.To = 100;
-                sb.Children.Add(doubleAnimationOpacity);
-                Storyboard.SetTargetName(doubleAnimationOpacity, boton.Name);
-                Storyboard.SetTargetProperty(doubleAnimationOpacity, new PropertyPath(Rectangle.OpacityProperty));
-                ///*Animation 2 */
-                //DoubleAnimation doubleAnimationWidth = new DoubleAnimation();
-                //doubleAnimationWidth.BeginTime = TimeSpan.FromMilliseconds((double)boton.startAnimationTime);
-                //doubleAnimationWidth.AccelerationRatio = 0.3;
-                //doubleAnimationWidth.DecelerationRatio = .4;
-                //doubleAnimationWidth.By = 20;
-                //doubleAnimationWidth.AutoReverse = true;
-                //sb.Children.Add(doubleAnimationWidth);
-                //Storyboard.SetTargetName(doubleAnimationWidth, boton.Name);
-                //Storyboard.SetTargetProperty(doubleAnimationWidth, new PropertyPath(Rectangle.WidthProperty));
-                ///*Animation 3*/
-                //DoubleAnimation doubleAnimationHeight = new DoubleAnimation();
-                //doubleAnimationHeight.BeginTime = TimeSpan.FromMilliseconds((double)boton.startAnimationTime);
-                //doubleAnimationHeight.AccelerationRatio = 0.3;
-                //doubleAnimationHeight.DecelerationRatio = .4;
-                //doubleAnimationHeight.By = 20;
-                //doubleAnimationHeight.AutoReverse = true;
-                //sb.Children.Add(doubleAnimationHeight);
-                //Storyboard.SetTargetName(doubleAnimationHeight, boton.Name);
-                //Storyboard.SetTargetProperty(doubleAnimationHeight, new PropertyPath(Rectangle.HeightProperty));
-                //
-                if (!newBtn.Name.ToLower().Contains("zocalo"))
-                    newBtn.Click += NewBtn_Click; ;
-                this.canvasContainerLine2.Children.Add(newBtn);
-            }
+            System.Windows.Media.Animation.Storyboard sb = new System.Windows.Media.Animation.Storyboard();
+            var botones = Helper.SetPosition(footer, ref zocalo, (Style)Resources["MyButtonStyle"], ref sb, RegisterName, isdefpos, startpos);
             sb.Begin(this, true);
+            foreach (var b in botones)
+                b.Click += NewBtn_Click;
             DataContainer.Instance().MainWndow.TimerActivity.Start();
             //
             //Boton Volver
-            Volver.Click += Volver_Click;
-            Volver2.Click += Volver_Click;
+            //Volver.Click += Volver_Click;
+            //Volver2.Click += Volver_Click;
             //
             worker = new BackgroundWorker();
             worker.DoWork += Worker_DoWork;
@@ -165,9 +123,13 @@ namespace WpfAsistente
             browser.ScriptErrorsSuppressed = true;
             browser.DocumentCompleted += Browser_DocumentCompleted;
             //   browser.Navigating += Browser_Navigating;
+            
             browser.Navigate(DataContainer.Instance().Url);
             browser.NewWindow += Browser_NewWindow;
+           
         }
+
+       
 
         private void Browser_NewWindow(object sender, CancelEventArgs e)
         {
@@ -408,7 +370,6 @@ namespace WpfAsistente
         }
 
 
-       
 
 
         internal class VirtualKeyBoardHelper

@@ -49,6 +49,7 @@ namespace WpfAsistente
         private SearchWindow _searchWindow;
         private VideoPlayer _videoPlayer;
         private Browser _browser;
+        private ChromeBrowser _cbrowser;
         private VideosFull _videoPlayerFull;
         private Selfie _selfie;
 
@@ -67,6 +68,7 @@ namespace WpfAsistente
             {
                 DataContainer.Instance().MainWndow = this;
                 DataContainer.Instance().DefaultButtonPos = Convert.ToBoolean(ConfigurationManager.AppSettings["startdefaultbuttons"]);
+            
 
                 _timer.Tick += _timer_Tick;
                 _timer.Interval = new TimeSpan(0, 0, 0, _timecapt, 0);
@@ -191,6 +193,12 @@ namespace WpfAsistente
                 CloseBrowser();
                 CloseVideoPlayer();
             }
+            if (DataContainer.Instance().isIncBrowser)
+            {
+                DataContainer.Instance().isIncBrowser = false;
+                ClosecBrowser();
+
+            }
             if (DataContainer.Instance().IsinSelfie)
             {
                 DataContainer.Instance().IsinSelfie = false;
@@ -200,11 +208,51 @@ namespace WpfAsistente
           //  ShowMenu();
         }
 
+        public void CloseAndgoMenu()
+        {
+            if (DataContainer.Instance().IsinVideoPlayer)
+            {
+                DataContainer.Instance().IsinVideoPlayer = false;
+                CloseVideoPlayer();
+            }
+            if (DataContainer.Instance().IsInVideoFull)
+            {
+                DataContainer.Instance().IsInVideoFull = false;
+                CloseVideoFull();
+            }
+
+            if (DataContainer.Instance().IsInBrowsewr)
+            {
+                DataContainer.Instance().IsInBrowsewr = false;
+                CloseBrowser();
+                CloseVideoPlayer();
+            }
+            if (DataContainer.Instance().IsinSelfie)
+            {
+                DataContainer.Instance().IsinSelfie = false;
+                CloseSelfie();
+
+            }
+            if (DataContainer.Instance().isIncBrowser)
+            {
+                DataContainer.Instance().isIncBrowser = false;
+                ClosecBrowser();
+
+            }
+            ShowMenu();
+        }
+
         private void _menu_OnmenuPost(TypeClass.Button button)
         {
             try
             {
-                CloseMenu();                         
+               if (button.Name.ToLower() == "atraspie" && !DataContainer.Instance().IsinMenu)
+                {
+                    CloseAndgoMenu();
+                    return;
+                }
+                CloseMenu();
+                ErrorBehabior();
                 DataContainer.Instance().Accion = button.Action;
                 DataContainer.Instance().VideoName = button.videoname;
                 DataContainer.Instance().Url = button.BrowserURL;
@@ -213,87 +261,30 @@ namespace WpfAsistente
                     ShowSelfie();
                 else if (button.Name == "estadotiempo")
                 {
-                      DataContainer.Instance().Accion = "estadotiempo";
-                      DataContainer.Instance().VideoName = button.videoname;
-                      ShowVideoFull();
+                    DataContainer.Instance().Accion = "estadotiempo";
+                    DataContainer.Instance().VideoName = button.videoname;
+                    ShowVideoFull();
+                }
+                if (button.OnlyBrowser) 
+                {
+
+                    ShowcBrowser(true);
                 }
                 else if (!button.OnlyVideo)
                 {
+
                     ShowVideoPlayer();
                     PlayVideo?.Invoke(null);
                     ShowBrowser();
                 }
-                else {
+                else
+                {
                     ShowVideoFull();
                     PlayVideo?.Invoke(null);
                 }    
-                   
-
-
-
-
-
-
-
-                //if (accion == "catalogo")
-                //{
-                //    DataContainer.Instance().Accion = "catalogo";
-                //    DataContainer.Instance().VideoName = "catalogo.mp4";
-                //    ShowVideoPlayer();
-                //    PlayVideo?.Invoke(null);
-                //    DataContainer.Instance().Url = _urlCatalogo;
-
-                //    // DataContainer.Instance().Url = " file:///E:/descargas/patricio/6-4/cgisirsi.exe.html";
-
-                //    ShowBrowser();
-                //}
-                //else if (accion == "infosearch")
-                //{
-                //    DataContainer.Instance().Accion = "infosearch";
-                //    DataContainer.Instance().VideoName = "iaesearch.mp4";
-                //    ShowVideoPlayer();
-                //    PlayVideo?.Invoke(null);
-                //    DataContainer.Instance().Url = _urlinfosearch;
-                //    // DataContainer.Instance().Url = "http://chat.netlab.snet/channel/general";
-                //    ShowBrowser();
-                //}
-                //else if (accion == "ejournals" || accion== "bibliotecadigital")
-                //{
-                //    DataContainer.Instance().Accion = accion;
-                //    DataContainer.Instance().VideoName = accion+".mp4";
-                //    ShowVideoPlayer();
-                //    PlayVideo?.Invoke(null);
-                //    if(accion== "ejournals")
-                //    DataContainer.Instance().Url = _urlejournals;
-                //    else
-                //       DataContainer.Instance().Url = _urlbibliotecadigital;
-                //     //  DataContainer.Instance().Url = "https://login.bidi.la/Saml/login/adfs.iae.edu.ar";
-                //       // DataContainer.Instance().Url = "D:/DOCS/scrapsalva/data/20170607174732/index.html";
-                //    ShowBrowser();
-                //}
-                //else if (accion == "basedatos")
-                //{
-                //    DataContainer.Instance().Accion = "basedatos";
-                //    DataContainer.Instance().VideoName = "basesdedatos.mp4";
-                //    ShowVideoPlayer();
-                //    PlayVideo?.Invoke(null);
-                //    DataContainer.Instance().Url = _urlbasedatos;
-                //    ShowBrowser();
-                //}
-                //else if (accion == "serviciosbiblioteca" || accion == "devolucionlibros" ||
-                //           accion == "unio" || accion == "estadotiempo")
-                //{
-                //    DataContainer.Instance().Accion = accion;
-                //    DataContainer.Instance().VideoName = accion + ".mp4";
-                //    ShowVideoFull();
-                //}
-
-                //else if (accion == "selfie")
-                //{
-                //    ShowSelfie();
-                //}
+               
             }
-            catch (Exception)
+            catch (Exception e)
             {
 
                 ShowMenu();
@@ -324,14 +315,28 @@ namespace WpfAsistente
             TimerActivity.Start();
         }
 
-        private void ShowBrowser()
+        private void ShowBrowser(bool onlyBlowser=false)
         {
 
-            _browser = new Browser();
+            _browser = new Browser(onlyBlowser);
+         
+            _browser.OnmenuPost += _menu_OnmenuPost;
             if (DataContainer.Instance().Accion == "catalogo")
                 _browser.OnFindBook += _browser_OnFindBook;
             _browser.Show();
         }
+
+        private void ShowcBrowser(bool onlyBlowser = false)
+        {
+
+            _cbrowser = new ChromeBrowser(onlyBlowser);
+
+            _cbrowser.OnmenuPost += _menu_OnmenuPost;
+            if (DataContainer.Instance().Accion == "catalogo")
+                _cbrowser.OnFindBook += _browser_OnFindBook;
+            _cbrowser.Show();
+        }
+        
 
         private void _browser_OnFindBook(string pasillo)
         {
@@ -344,10 +349,15 @@ namespace WpfAsistente
             DataContainer.Instance().IsInBrowsewr = false;
             _browser.Close();
         }
-
+        private void ClosecBrowser()
+        {
+            DataContainer.Instance().isIncBrowser = false;
+            _cbrowser.Close();
+        }
         private void ShowVideoFull()
         {
             _videoPlayerFull = new VideosFull();
+            _videoPlayerFull.OnmenuPost += _menu_OnmenuPost;
             _videoPlayerFull.Show();
         }
 

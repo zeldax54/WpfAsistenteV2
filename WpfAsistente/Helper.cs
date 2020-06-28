@@ -8,8 +8,10 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using Image = System.Windows.Controls.Image;
+using Point = System.Windows.Point;
 
 namespace WpfAsistente
 {
@@ -56,7 +58,16 @@ namespace WpfAsistente
 
         public static void to_PositionButton(Button b, double percentLeft, double percentBottom, bool fromright = false)
         {
-
+            double bottomDistance = (percentBottom / 100) * SystemParameters.FullPrimaryScreenHeight;
+            double leftDistance = (percentLeft / 100) * SystemParameters.FullPrimaryScreenWidth;
+            if (fromright)
+                b.SetValue(Canvas.RightProperty, leftDistance);
+            else
+                b.SetValue(Canvas.LeftProperty, leftDistance);
+            b.SetValue(Canvas.BottomProperty, bottomDistance);
+        }
+        public static void to_PositionButtonWindow(Button b, double percentLeft, double percentBottom, bool fromright = false)
+        {
 
             double bottomDistance = (percentBottom / 100) * SystemParameters.FullPrimaryScreenHeight;
             double leftDistance = (percentLeft / 100) * SystemParameters.FullPrimaryScreenWidth;
@@ -375,14 +386,61 @@ namespace WpfAsistente
 
         public static List<TypeClass.Button> GetFooter()
         {
-            List<string> footerButtons = new List<string>() { "estadotiempo", "chat", "atras" };   
+            List<string> footerButtons = new List<string>() { "estadotiempo", "atraspie", "mailbutton", "selfie", "tutoriales" };
             return DataContainer.Instance().menuButtons.
                 Where(o => footerButtons.Contains(o.Name.ToLower())).ToList();
         }
 
+        public static List<System.Windows.Controls.Button> SetPosition(List<TypeClass.Button> buttons,ref Canvas container,Style style,ref Storyboard sb,
+            Action<string, object> RegisterName,
+            bool isdefpos=false, decimal startpos =0) {
 
+            List<System.Windows.Controls.Button> lista = new List<Button>();
+            foreach (var boton in buttons)
+            {
+                System.Windows.Controls.Button newBtn = new System.Windows.Controls.Button();
+                newBtn.Name = boton.Name;
+                RegisterName(newBtn.Name, newBtn);
+                newBtn.Content = "";
+                newBtn.Opacity = 0;
+                Image img = new Image();
+                string strUri2 = Directory.GetCurrentDirectory() + $"/Img/MenuButtons/{boton.ImageName}";
+                img.Source = new BitmapImage(new Uri(strUri2));
+                img.Stretch = Stretch.Uniform;
+                newBtn.Background = new ImageBrush(img.Source);
+                newBtn.RenderTransformOrigin = new Point(0.5, 0.5);
+                newBtn.BorderThickness = new Thickness(0);
+                newBtn.Style = style;
+                if (isdefpos)
+                {
+                    Helper.to_PositionButton(newBtn, (double)startpos, 50, false);
+                    startpos += 7;
+                }
+                else
+                    Helper.to_PositionButton(newBtn, (double)boton.Postition, (double)boton.FromBotton, boton.FromRight);
+                Helper.ResizeButtonProportional(newBtn, (double)boton.Size);
+                /*Animation 1*/
+                System.Windows.Media.Animation.DoubleAnimation doubleAnimationOpacity = new DoubleAnimation();
+                doubleAnimationOpacity.BeginTime = TimeSpan.FromMilliseconds(0);
+                doubleAnimationOpacity.AccelerationRatio = 0.3;
+                doubleAnimationOpacity.DecelerationRatio = .4;
+                doubleAnimationOpacity.From = 0;
+                doubleAnimationOpacity.To = 1;
+                sb.Children.Add(doubleAnimationOpacity);
+                Storyboard.SetTargetName(doubleAnimationOpacity, boton.Name);
+                Storyboard.SetTargetProperty(doubleAnimationOpacity, new PropertyPath(System.Windows.Shapes.Rectangle.OpacityProperty));       
+                container.Children.Add(newBtn);
+                
+                lista.Add(newBtn);
 
+            }
+            return lista;
+            
 
+        }
 
+     
+
+        
     }
 }
