@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -19,6 +20,8 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using CefSharp;
+using CefSharp.Wpf;
 using Microsoft.Win32;
 using mshtml;
 using MessageBox = System.Windows.MessageBox;
@@ -29,7 +32,7 @@ namespace WpfAsistente
     /// <summary>
     /// Interaction logic for Browser.xaml
     /// </summary>
-    public partial class Browser : Window
+    public partial class Browser : Window, ILifeSpanHandler
     {
 
         public delegate void OnFindBookManaher(string pasillo);
@@ -42,6 +45,7 @@ namespace WpfAsistente
         public delegate void OnMenuManager(WpfAsistente.TypeClass.Button button);
         public event OnMenuManager OnmenuPost;
         bool OnlyBrowser;
+        bool isdeleted = false;
 
         public Browser(bool pOnlyBrowser=false)
         {
@@ -54,9 +58,7 @@ namespace WpfAsistente
      
 
         private void Browser_OnInitialized(object sender, EventArgs e)
-        {          
-
-          
+        {                    
 
             DataContainer.Instance().IsInBrowsewr = true;
             DataContainer.Instance().Browser = this;
@@ -76,8 +78,8 @@ namespace WpfAsistente
             canvasContainerLine.Width = SystemParameters.FullPrimaryScreenWidth;
             canvasContainerLine.Height = Helper.Porciento(5, SystemParameters.FullPrimaryScreenHeight);
 
-            BrowserFormsHost.Width= SystemParameters.FullPrimaryScreenWidth;
-            BrowserFormsHost.Height = Helper.Porciento(browserheight, Height);
+            browser.Width= SystemParameters.FullPrimaryScreenWidth;
+            browser.Height = Helper.Porciento(browserheight, Height);
 
           
 
@@ -103,11 +105,13 @@ namespace WpfAsistente
             //
             //Boton Volver
             //Volver.Click += Volver_Click;
-            //Volver2.Click += Volver_Click;
+            Volver2.Click += Volver_Click;
             //
-            worker = new BackgroundWorker();
-            worker.DoWork += Worker_DoWork;
-            worker.RunWorkerAsync();
+            //   browser.Navigating += Browser_Navigating;
+            browser.LifeSpanHandler = this;
+            browser.Address = (DataContainer.Instance().Url);
+            browser.JavascriptMessageReceived += OnBrowserJavascriptMessageReceived;
+            browser.FrameLoadEnd += OnFrameLoadEnd;
         }
 
         private void NewBtn_Click(object sender, RoutedEventArgs e)
@@ -117,21 +121,52 @@ namespace WpfAsistente
             OnmenuPost?.Invoke(b);
         }
 
-        private void Worker_DoWork(object sender, DoWorkEventArgs e)
+      
+        public void OnFrameLoadEnd(object sender, FrameLoadEndEventArgs e)
         {
-            browser.DocumentCompleted += LoadCompleteEventHandler;
-            browser.ScriptErrorsSuppressed = true;
-            browser.DocumentCompleted += Browser_DocumentCompleted;
-            //   browser.Navigating += Browser_Navigating;
-            
-            browser.Navigate(DataContainer.Instance().Url);
-            browser.NewWindow += Browser_NewWindow;
+            if (!isdeleted) {
+                string predel = @" document.querySelectorAll('.micrositio-header')[0].style.display = 'none'";
+                browser.ExecuteScriptAsync(predel);
+                predel = @"document.querySelectorAll('.micrositio-menu-container')[0].style.display = 'none'";
+                browser.ExecuteScriptAsync(predel);
+
+                foreach (var item in DataContainer.Instance().clickedButton.deletesections)
+                {
+
+                    string script = @" document.querySelectorAll('" +
+                        item.tag + "').forEach(element => {if(element.getAttribute('" + item.type + "')=='" + item.name + "')element.style.display = 'none'})";
+                    browser.ExecuteScriptAsync(script);
+
+                }
+
+
+                browser.ExecuteScriptAsync(@"
+              document.querySelectorAll('input').forEach(element => element.addEventListener('click', ()=>{CefSharp.PostMessage('asdasd');}));    
            
+	         ");
+
+                isdeleted = true;
+            }
+         
+            
+
+            if (e.Frame.IsMain)
+            {         
+               
+
+            }
         }
 
-       
+        private void OnBrowserJavascriptMessageReceived(object sender, JavascriptMessageReceivedEventArgs e)
+        {
+            var windowSelection = (string)e.Message;
+            VirtualKeyBoardHelper.AttachTabTip();
 
-        private void Browser_NewWindow(object sender, CancelEventArgs e)
+        }
+
+
+
+      /*  private void Browser_NewWindow(object sender, CancelEventArgs e)
         {
             e.Cancel = true;
             if (DataContainer.Instance().Accion == "Buscador") {
@@ -147,7 +182,7 @@ namespace WpfAsistente
             }
             else
                 browser.Navigate(browser.StatusText);
-        }
+        }*/
 
         private void Browser_Navigating(object sender, WebBrowserNavigatingEventArgs e)
         {
@@ -165,209 +200,67 @@ namespace WpfAsistente
 
         private void Volver_Click(object sender, RoutedEventArgs e)
         {
-            DataContainer.Instance().MainWndow.CloseVideoPlayer();
-            DataContainer.Instance().MainWndow.ShowMenu();
-            Close();
+            browser.ExecuteScriptAsync("history.back()");
 
         }
 
-        private void LoadCompleteEventHandler(object sender, WebBrowserDocumentCompletedEventArgs e)
-        {
-            try
-            {
-                DataContainer.Instance().MainWndow.ActivityRestart();//Reseteando contador de actividad
-                if (browser.Document != null)
-                {
-                    HtmlElementCollection elements = browser.Document.GetElementsByTagName("input");
 
-                    foreach (HtmlElement input in elements)
-                    {
-                        string x = input.GetAttribute("id");
-                        if (input.GetAttribute("type").ToLower() == "text" || input.GetAttribute("type").ToLower() == "password"
-                            ||input.GetAttribute("id")== "title-search-input-typeahead-false")
-                        {
-                            input.GotFocus += (o, args) => VirtualKeyBoardHelper.AttachTabTip();
-                            //  input.LostFocus += (o, args) => VirtualKeyBoardHelper.RemoveTabTip();
-                        }
-                    }
-                }
-           
-                if (browser.Document != null && DataContainer.Instance().clickedButton.deletesections.Count() > 0)
-                {
-                    foreach (var item in DataContainer.Instance().clickedButton.deletesections)
-                    {
-                        foreach (HtmlElement element in browser.Document.GetElementsByTagName(item.tag))
-                        {
-                            if (element.GetAttribute(item.type) == item.name)
-                            {
-                                element.OuterHtml = "";
-                            }
-                        }
-
-                    }
-                    //if (DataContainer.Instance().Accion != "catalogo")
-                    //    return;
-
-          
-                }
-               
-              
-            }
-            catch (Exception)
-            {
-                
-               DataContainer.Instance().MainWndow.ErrorBehabior();
-            } 
-
-        }
-        private void Browser_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
-        {
-            //
-            foreach (HtmlElement element in browser.Document.GetElementsByTagName("a"))
-            {
-                try
-                {
-                    bool allow = false;
-                    foreach (var item in DataContainer.Instance().clickedButton.allowedurlscope)
-                    {
-                        string href = element.GetAttribute("href");
-                        if (href.StartsWith(item) == true)
-                        {
-                            allow = true; break;
-                        }
-
-                    }
-                    if (!allow)
-                    {
-                        var banurl = element.GetAttribute("href");
-                        var newouter = element.OuterHtml.Replace(banurl, "#");
-                        element.OuterHtml = newouter;
-                    }
-                    var targetnew = element.OuterHtml.Replace("_blank", "#");
-                    element.OuterHtml = targetnew;
-                }
-                catch (Exception)
-                {
-
-                    //continue;
-                }
-                
-
-            }
-            foreach (HtmlElement item in browser.Document.GetElementsByTagName("div"))
-            {
-                try
-                {
-                    if (item.GetAttribute("className").Contains("revistas") || item.GetAttribute("className").Contains("colecciones"))
-                    {
-                        foreach (HtmlElement a in item.GetElementsByTagName("a"))
-                        {
-                            bool allow = false;
-                            foreach (var url in DataContainer.Instance().clickedButton.allowedurlscope)
-                            {
-                                string href = a.GetAttribute("href");
-                                if (href.StartsWith(url) == true)
-                                {
-                                    allow = true; break;
-                                }
-                            }
-                            if (!allow)
-                            {
-                                var banurl = a.GetAttribute("href");
-                                var newouter = a.OuterHtml.Replace(banurl, "#");
-                                a.OuterHtml = newouter;
-                            }
-                            var targetnew = a.OuterHtml.Replace("_blank", "#");
-                            a.OuterHtml = targetnew;
-
-                        }
-
-
-                    }
-
-
-                    var aelements = browser.Document.GetElementsByTagName("a")
-                        .Cast<HtmlElement>().Where(b => b.GetAttribute("className") == "md-primoExplore-theme").ToList();
-
-
-                    if (aelements != null && aelements.Count > 0)
-                        foreach (HtmlElement a in aelements)
-                        {
-                            a.Click -= A_Click;
-                            a.Click += A_Click;
-                        }
-                }
-                catch (Exception)
-                {
-
-                    //continue;
-                }
-
-              
-            }
-        }
+    
 
 
 
         protected override void OnClosing(CancelEventArgs e)
         {
-            ClearCookies();
+            //ClearCookies();
+            browser.GetCookieManager().DeleteCookies();
+            foreach (IWebBrowser b in popus)            
+                b.GetBrowser().CloseBrowser(false);           
+         
             base.OnClosing(e);
             VirtualKeyBoardHelper.RemoveTabTip();
         }
 
-        private void ClearCookies()
-
+        List<IWebBrowser> popus = new List<IWebBrowser>();
+     
+        public bool OnBeforePopup(IWebBrowser pchromiumWebBrowser, IBrowser pbrowser, IFrame frame, string targetUrl, string targetFrameName, WindowOpenDisposition targetDisposition, bool userGesture, IPopupFeatures popupFeatures, IWindowInfo windowInfo, IBrowserSettings browserSettings, ref bool noJavascriptAccess, out IWebBrowser newBrowser)
         {
-
-            browser.Navigate("javascript:void((function(){var a,b,c,e,f;f=0;a=document.cookie.split('; ');"
-
-            + "for(e=0;e<a.length&&a[e];e++){f++;for(b='.'+location.host;b;b=b.replace(/^(?:%5C.|[^%5C.]+)/,''))"
-
-            + "{for(c=location.pathname;c;c=c.replace(/.$/,'')){document.cookie=(a[e]+'; domain='+b+'; path='+c+';"
-
-            + "expires='+new Date((new Date()).getTime()-1e11).toGMTString());}}}})())");
-
+            newBrowser = new ChromiumWebBrowser(targetUrl);
+            popus.Add(newBrowser);
+            return false;
         }
 
-        private void A_Click(object sender, HtmlElementEventArgs e)
+        public void OnAfterCreated(IWebBrowser chromiumWebBrowser, IBrowser browser)
         {
-            DataContainer.Instance().MainWndow.ActivityRestart();
-
-            HtmlElement elem = (HtmlElement)sender;
-            string biblioteca="";
-            if (elem.Document != null)
-            {
-                var element = elem.Document.GetElementById("library");
-                dynamic dom = element.DomElement;
-                int index = (int)dom.selectedIndex();
-                if (index != -1)
-                {
-                    biblioteca = element.Children[index].InnerText;
-                }
-            }
-
-            if (elem.Parent != null)
-            {
-                if (elem.OuterHtml.ToLower().Contains("</a>"))
-                {
-                    HtmlElement parent = elem.Parent.Parent;
-                    var stat= parent?.GetElementsByTagName("dd").Cast<HtmlElement>().FirstOrDefault(a => a.OuterHtml.ToLower().Contains("holdings_statement"));
-
-                    var contains = stat?.OuterText?.Contains("Biblioteca IAE");
-                    if ((contains != null &&  (bool) contains) || biblioteca== "Biblioteca IAE")
-                    {
-                        var dd = parent?.GetElementsByTagName("dd").Cast<HtmlElement>().FirstOrDefault(a => a.OuterHtml.ToLower().Contains("call_number"));
-                        if (dd != null)
-                        {
-                            string[] datos = Helper.PasilloEstante(dd.InnerHtml);
-                            if (datos != null)
-                                OnFindBook?.Invoke(datos[0]);
-                        }
-                    }
-                }
-            }
+           
         }
+
+        public bool DoClose(IWebBrowser chromiumWebBrowser, IBrowser browser)
+        {
+      
+            browser.CloseBrowser(false);
+            return true;
+        }
+
+        public void OnBeforeClose(IWebBrowser chromiumWebBrowser, IBrowser browser)
+        {
+           
+        }
+
+        /* private void ClearCookies()
+
+         {
+
+             browser.Navigate("javascript:void((function(){var a,b,c,e,f;f=0;a=document.cookie.split('; ');"
+
+             + "for(e=0;e<a.length&&a[e];e++){f++;for(b='.'+location.host;b;b=b.replace(/^(?:%5C.|[^%5C.]+)/,''))"
+
+             + "{for(c=location.pathname;c;c=c.replace(/.$/,'')){document.cookie=(a[e]+'; domain='+b+'; path='+c+';"
+
+             + "expires='+new Date((new Date()).getTime()-1e11).toGMTString());}}}})())");
+
+         }*/
+
+
 
 
 

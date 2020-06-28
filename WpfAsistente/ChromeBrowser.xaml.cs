@@ -24,13 +24,14 @@ using mshtml;
 using MessageBox = System.Windows.MessageBox;
 using CefSharp;
 using WPFTabTip;
+using CefSharp.Wpf;
 
 namespace WpfAsistente
 {
     /// <summary>
     /// Interaction logic for Browser.xaml
     /// </summary>
-    public partial class ChromeBrowser : Window
+    public partial class ChromeBrowser : Window, ILifeSpanHandler
     {
 
         public delegate void OnFindBookManaher(string pasillo);
@@ -43,6 +44,7 @@ namespace WpfAsistente
         public delegate void OnMenuManager(WpfAsistente.TypeClass.Button button);
         public event OnMenuManager OnmenuPost;
         bool OnlyBrowser;
+        bool isdeleted = false;
 
         public ChromeBrowser(bool pOnlyBrowser=false)
         {
@@ -115,6 +117,14 @@ namespace WpfAsistente
 
         public void OnFrameLoadEnd(object sender, FrameLoadEndEventArgs e)
         {
+            if (!isdeleted)
+            {
+                string predel = @" document.querySelectorAll('.micrositio-header')[0].style.display = 'none'";
+                cBrowser.ExecuteScriptAsync(predel);
+                predel = @"document.querySelectorAll('.micrositio-menu-container')[0].style.display = 'none'";
+                cBrowser.ExecuteScriptAsync(predel);
+                isdeleted = true;
+            }
             if (e.Frame.IsMain)
             {
                 //In the main frame we inject some javascript that's run on mouseUp
@@ -139,10 +149,7 @@ namespace WpfAsistente
        
 
 
-        private void CBrowser_LoadingStateChanged(object sender, LoadingStateChangedEventArgs e)
-        {
-          
-        }
+    
 
 
    
@@ -183,18 +190,47 @@ namespace WpfAsistente
 
         }
 
-        
+
 
 
 
         protected override void OnClosing(CancelEventArgs e)
         {
-        
+            //ClearCookies();
+            cBrowser.GetCookieManager().DeleteCookies();
+            foreach (IWebBrowser b in popus)
+                b.GetBrowser().CloseBrowser(false);
+
             base.OnClosing(e);
             VirtualKeyBoardHelper.RemoveTabTip();
         }
 
-    
+        List<IWebBrowser> popus = new List<IWebBrowser>();
+
+        public bool OnBeforePopup(IWebBrowser pchromiumWebBrowser, IBrowser pbrowser, IFrame frame, string targetUrl, string targetFrameName, WindowOpenDisposition targetDisposition, bool userGesture, IPopupFeatures popupFeatures, IWindowInfo windowInfo, IBrowserSettings browserSettings, ref bool noJavascriptAccess, out IWebBrowser newBrowser)
+        {
+            newBrowser = new ChromiumWebBrowser(targetUrl);
+            popus.Add(newBrowser);
+            return false;
+        }
+
+        public void OnAfterCreated(IWebBrowser chromiumWebBrowser, IBrowser browser)
+        {
+
+        }
+
+        public bool DoClose(IWebBrowser chromiumWebBrowser, IBrowser browser)
+        {
+
+            browser.CloseBrowser(false);
+            return true;
+        }
+
+        public void OnBeforeClose(IWebBrowser chromiumWebBrowser, IBrowser browser)
+        {
+
+        }
+
 
         private void A_Click(object sender, HtmlElementEventArgs e)
         {
