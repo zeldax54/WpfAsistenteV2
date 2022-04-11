@@ -11,11 +11,10 @@
     HorizontalAlignment="Center"
     WindowStartupLocation="CenterScreen" 
     BorderThickness="1" Width="880.807" Height="530.941"
-   Background="Transparent" AllowsTransparency="True" WindowStyle="None"          
+   Background="Transparent" AllowsTransparency="True" WindowStyle="None"
+              
         
 
 
 
-    >
-   
-</Window>
+    />

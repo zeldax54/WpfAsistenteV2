@@ -1,15 +1,18 @@
-﻿using Emgu.CV;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
+using Emgu.CV;
+using Emgu.CV.Cuda;
 using Image = System.Windows.Controls.Image;
 using Point = System.Windows.Point;
 
@@ -47,8 +50,8 @@ namespace WpfAsistente
         {
             //double porcientoAlto = 6.14583;
             //double porcientoAncho = 27.7;
-            double tamanoAlto = (porcientoAlto / 100) * SystemParameters.FullPrimaryScreenHeight;
-            double tamanoAncho = (porcientoAncho / 100) * SystemParameters.FullPrimaryScreenWidth;
+            double tamanoAlto = (porcientoAlto/100)*SystemParameters.FullPrimaryScreenHeight;
+            double tamanoAncho = (porcientoAncho/100)*SystemParameters.FullPrimaryScreenWidth;
             foreach (var button in b)
             {
                 button.Height = tamanoAlto;
@@ -58,19 +61,8 @@ namespace WpfAsistente
 
         public static void to_PositionButton(Button b, double percentLeft, double percentBottom, bool fromright = false)
         {
-            double bottomDistance = (percentBottom / 100) * SystemParameters.FullPrimaryScreenHeight;
-            double leftDistance = (percentLeft / 100) * SystemParameters.FullPrimaryScreenWidth;
-            if (fromright)
-                b.SetValue(Canvas.RightProperty, leftDistance);
-            else
-                b.SetValue(Canvas.LeftProperty, leftDistance);
-            b.SetValue(Canvas.BottomProperty, bottomDistance);
-        }
-        public static void to_PositionButtonWindow(Button b, double percentLeft, double percentBottom, bool fromright = false)
-        {
-
-            double bottomDistance = (percentBottom / 100) * SystemParameters.FullPrimaryScreenHeight;
-            double leftDistance = (percentLeft / 100) * SystemParameters.FullPrimaryScreenWidth;
+            double bottomDistance = (percentBottom/100)*SystemParameters.FullPrimaryScreenHeight;
+            double leftDistance = (percentLeft/100)*SystemParameters.FullPrimaryScreenWidth;
             if (fromright)
                 b.SetValue(Canvas.RightProperty, leftDistance);
             else
@@ -81,7 +73,7 @@ namespace WpfAsistente
         public static void ResizeButtons(Button[] b, double porciento)
         {
 
-            double tamano = (porciento / 100) * SystemParameters.FullPrimaryScreenHeight;
+            double tamano = (porciento/100)*SystemParameters.FullPrimaryScreenHeight;
             foreach (var button in b)
             {
                 button.Width = tamano;
@@ -93,17 +85,9 @@ namespace WpfAsistente
 
         public static void ResizeButton(Button b, double porciento)
         {
-            double tamano = (porciento / 100) * SystemParameters.FullPrimaryScreenHeight;
+            double tamano = (porciento / 100) * SystemParameters.FullPrimaryScreenHeight;               
             b.Width = tamano;
             b.Height = tamano;
-        }
-
-        public static void ResizeButtonProportional(Button b, double porciento)
-        {
-            double tamanoHeight = (porciento / 100) * SystemParameters.FullPrimaryScreenHeight;
-            double tamanoWidth = (porciento / 100) * SystemParameters.FullPrimaryScreenWidth;
-            b.Width = tamanoWidth;
-            b.Height = tamanoHeight;
         }
 
         /// <summary>
@@ -112,7 +96,7 @@ namespace WpfAsistente
         /// <returns></returns>
         public static double Porciento(double porciento, double total)
         {
-            return (porciento / 100) * total;
+            return (porciento/100)*total;
         }
 
         public static void ResizeScreen(double alto, double ancho, Window w, double top, double left, double right,
@@ -170,14 +154,14 @@ namespace WpfAsistente
         /// <param name="perecntbottom">  porciento a posicionar desde abajo</param>
         /// <param name="referenciapercentbottom">  Referencia a tomar en cuenta de alto para perecntbottom</param>
         public static void Posicionate(UIElement c, double percentleft, double referenciapercentleft,
-            double perecntbottom, double referenciapercentbottom, bool soloalto = false, bool soloancho = false)
+            double perecntbottom, double referenciapercentbottom, bool soloalto=false,bool soloancho=false)
         {
             double leftdistance = Porciento(percentleft, referenciapercentleft);
             double bottomdistance = Porciento(perecntbottom, referenciapercentbottom);
-            if (!soloalto)
-                c.SetValue(Canvas.LeftProperty, leftdistance);
-            if (!soloancho)
-                c.SetValue(Canvas.BottomProperty, bottomdistance);
+            if(!soloalto)
+            c.SetValue(Canvas.LeftProperty, leftdistance);
+            if(!soloancho)
+            c.SetValue(Canvas.BottomProperty, bottomdistance);
         }
 
         /// <summary>
@@ -193,8 +177,8 @@ namespace WpfAsistente
         public static void ResizeControl(Control[] c, double porcientoAlto, double porcuentoAncho,
             double refporcientoAlto, double refporcientoAncho, bool ifrefalto = false, bool ifrefancho = false)
         {
-            double tamanoAlto = (porcientoAlto / 100) * refporcientoAlto;
-            double tamanoAncho = (porcuentoAncho / 100) * refporcientoAncho;
+            double tamanoAlto = (porcientoAlto/100)*refporcientoAlto;
+            double tamanoAncho = (porcuentoAncho/100)*refporcientoAncho;
             foreach (var control in c)
             {
                 if (ifrefalto)
@@ -232,8 +216,8 @@ namespace WpfAsistente
         public static void ResizeGrids(Grid[] c, double porcientoAlto, double porcuentoAncho,
             double refporcientoAlto, double refporcientoAncho, bool ifrefalto = false, bool ifrefancho = false)
         {
-            double tamanoAlto = (porcientoAlto / 100) * refporcientoAlto;
-            double tamanoAncho = (porcuentoAncho / 100) * refporcientoAncho;
+            double tamanoAlto = (porcientoAlto/100)*refporcientoAlto;
+            double tamanoAncho = (porcuentoAncho/100)*refporcientoAncho;
             foreach (var control in c)
             {
                 if (ifrefalto)
@@ -261,22 +245,22 @@ namespace WpfAsistente
         {
             double tamanoAlto = (porcientoAlto / 100) * refporcientoAlto;
             double tamanoAncho = (porcuentoAncho / 100) * refporcientoAncho;
-
-            if (ifrefalto)
-            {
-                control.Height = tamanoAlto;
-                control.Width = tamanoAlto;
-            }
-            else if (ifrefancho)
-            {
-                control.Height = tamanoAncho;
-                control.Width = tamanoAncho;
-            }
-            else
-            {
-                control.Height = tamanoAlto;
-                control.Width = tamanoAncho;
-            }
+          
+                if (ifrefalto)
+                {
+                    control.Height = tamanoAlto;
+                    control.Width = tamanoAlto;
+                }
+                else if (ifrefancho)
+                {
+                    control.Height = tamanoAncho;
+                    control.Width = tamanoAncho;
+                }
+                else
+                {
+                    control.Height = tamanoAlto;
+                    control.Width = tamanoAncho;
+                }
         }
 
 
@@ -322,13 +306,13 @@ namespace WpfAsistente
 
 
 
-        public static void PosicionateOnlyHeight(UIElement c,
+        public static void PosicionateOnlyHeight(UIElement c, 
          double perecntbottom, double referenciapercentbottom)
         {
-
+       
             double bottomdistance = Porciento(perecntbottom, referenciapercentbottom);
-
-            c.SetValue(Canvas.BottomProperty, bottomdistance);
+         
+                c.SetValue(Canvas.BottomProperty, bottomdistance);
         }
 
         /// <summary>
@@ -391,9 +375,11 @@ namespace WpfAsistente
                 Where(o => footerButtons.Contains(o.Name.ToLower())).ToList();
         }
 
-        public static List<System.Windows.Controls.Button> SetPosition(List<TypeClass.Button> buttons,ref Canvas container,Style style,ref Storyboard sb,
+
+        public static List<System.Windows.Controls.Button> SetPosition(List<TypeClass.Button> buttons, ref Canvas container, Style style, ref Storyboard sb,
             Action<string, object> RegisterName,
-            bool isdefpos=false, decimal startpos =0) {
+            bool isdefpos = false, decimal startpos = 0)
+        {
 
             List<System.Windows.Controls.Button> lista = new List<Button>();
             foreach (var boton in buttons)
@@ -428,19 +414,23 @@ namespace WpfAsistente
                 doubleAnimationOpacity.To = 1;
                 sb.Children.Add(doubleAnimationOpacity);
                 Storyboard.SetTargetName(doubleAnimationOpacity, boton.Name);
-                Storyboard.SetTargetProperty(doubleAnimationOpacity, new PropertyPath(System.Windows.Shapes.Rectangle.OpacityProperty));       
+                Storyboard.SetTargetProperty(doubleAnimationOpacity, new PropertyPath(System.Windows.Shapes.Rectangle.OpacityProperty));
                 container.Children.Add(newBtn);
-                
+
                 lista.Add(newBtn);
 
             }
             return lista;
-            
+
 
         }
+        public static void ResizeButtonProportional(Button b, double porciento)
+        {
+            double tamanoHeight = (porciento / 100) * SystemParameters.FullPrimaryScreenHeight;
+            double tamanoWidth = (porciento / 100) * SystemParameters.FullPrimaryScreenWidth;
+            b.Width = tamanoWidth;
+            b.Height = tamanoHeight;
+        }
 
-     
-
-        
     }
 }

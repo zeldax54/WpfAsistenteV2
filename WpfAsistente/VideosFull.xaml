@@ -7,24 +7,22 @@
         mc:Ignorable="d"
         Title="VideosFull" Height="300" Width="300"
         Initialized="VideosFull_OnInitialized"
-        Background="{x:Null}"  AllowsTransparency="True" 
-        WindowStyle="None" ResizeMode="NoResize" 
-        WindowStartupLocation="CenterScreen">
+        Background="{x:Null}"  AllowsTransparency="True" WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
     <Window.Resources>
-        <Style x:Key="MyButtonStyle" TargetType="Button">
+        <Style x:Key="MyButtonStyle" TargetType="{x:Type Button}">
             <Setter Property="OverridesDefaultStyle" Value="True"/>
             <Setter Property="Margin" Value="5"/>
             <Setter Property="Template">
                 <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Name="border"
-  BorderThickness="1"
-  Padding="4,2"
-  BorderBrush="Transparent"
-  CornerRadius="3"
-  Background="{TemplateBinding Background}">
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border x:Name="border"
+                            BorderThickness="1"
+                            Padding="4,2"
+                            BorderBrush="Transparent"
+                            CornerRadius="3"
+                            Background="{TemplateBinding Background}">
                             <ContentPresenter
- HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
@@ -35,15 +33,13 @@
                 </Setter.Value>
             </Setter>
             <Style.Triggers>
-                <EventTrigger RoutedEvent="Button.Click">
-                    <EventTrigger.Actions>
-                        <BeginStoryboard>
-                            <Storyboard>
-                                <DoubleAnimation By="-5" Duration="0:0:0.1" Storyboard.TargetProperty="(Button.Height) " AutoReverse="True"/>
-                                <DoubleAnimation By="-5" Duration="0:0:0.1" Storyboard.TargetProperty="(Button.Width)" AutoReverse="True"/>
-                            </Storyboard>
-                        </BeginStoryboard>
-                    </EventTrigger.Actions>
+                <EventTrigger RoutedEvent="ButtonBase.Click">
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <DoubleAnimation By="-5" Duration="0:0:0.1" Storyboard.TargetProperty="(FrameworkElement.Height) " AutoReverse="True"/>
+                            <DoubleAnimation By="-5" Duration="0:0:0.1" Storyboard.TargetProperty="(FrameworkElement.Width)" AutoReverse="True"/>
+                        </Storyboard>
+                    </BeginStoryboard>
                 </EventTrigger>
             </Style.Triggers>
 
@@ -71,7 +67,6 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
-               
                 </Grid.RowDefinitions>
 
                 <Label x:Name="labelFecha"  Grid.Column="0" Grid.Row="0" FontFamily="DINPro" FontWeight="Bold" FontSize="40" Foreground="#FF060606" Content="xxxx" HorizontalAlignment="Center" VerticalAlignment="Center" />
@@ -81,11 +76,18 @@
                 <Canvas x:Name="canvas3"   Grid.Column="0" Grid.Row="3" Background="White" />
                 <Label x:Name="labelnubes"  Grid.Column="0" Grid.Row="4" FontFamily="DINPro" FontWeight="Regular" FontSize="40" Foreground="#FF060606" Content="xxxx" HorizontalAlignment="Center" VerticalAlignment="Center" />
                 <Label x:Name="labelhumedad"  Grid.Column="0" Grid.Row="5" FontFamily="DINPro" FontWeight="Regular" FontSize="40" Foreground="#FF060606" Content="xxxx" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                
+
             </Grid>
         </Border>
-        
+        <Button x:Name="Volvermenu" Content="" Canvas.Right="0" Canvas.Top="123"   Width="179" Height="177" BorderThickness="0" Style="{StaticResource MyButtonStyle}" Opacity="100" Canvas.Left="121" Margin="0">
+            <Button.Effect>
+                <DropShadowEffect/>
+            </Button.Effect>
 
+            <Button.Background>
+                <ImageBrush ImageSource="atrasmenu.png" />
+            </Button.Background>
+        </Button>
 
     </Canvas>
 

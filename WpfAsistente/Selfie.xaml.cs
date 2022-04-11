@@ -208,8 +208,7 @@ namespace WpfAsistente
 
         private void Volver_Click(object sender, RoutedEventArgs e)
         {
-            DataContainer.Instance().MainWndow.CloseSelfie();
-            DataContainer.Instance().MainWndow.ShowMenu();
+            DataContainer.Instance().MainWndow.CloseAndgoMenu();
             Close();
 
         }

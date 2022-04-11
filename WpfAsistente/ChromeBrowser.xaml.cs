@@ -40,6 +40,10 @@ namespace WpfAsistente
         readonly double volverporcalto = Convert.ToDouble(ConfigurationManager.AppSettings["volverporcalto"]);
         readonly double volverporcancho = Convert.ToDouble(ConfigurationManager.AppSettings["volverporcancho"]);
         readonly double browserheight= Convert.ToDouble(ConfigurationManager.AppSettings["browserheight"]);
+        readonly double volverMenuFromBotton = Convert.ToDouble(ConfigurationManager.AppSettings["volverMenuFromBotton"]);
+        readonly double volverMenuFromLeft = Convert.ToDouble(ConfigurationManager.AppSettings["volverMenuFromLeft"]);
+
+
         BackgroundWorker worker;
         public delegate void OnMenuManager(WpfAsistente.TypeClass.Button button);
         public event OnMenuManager OnmenuPost;
@@ -50,16 +54,10 @@ namespace WpfAsistente
         {
             OnlyBrowser = pOnlyBrowser;
             InitializeComponent();
-        }
-
-   
-
-     
+        }     
 
         private void Browser_OnInitialized(object sender, EventArgs e)
-        {          
-
-          
+        {               
 
             DataContainer.Instance().isIncBrowser = true;
             DataContainer.Instance().cBrowser = this;
@@ -85,13 +83,12 @@ namespace WpfAsistente
 
             TabTipAutomation.BindTo<System.Windows.Controls.TextBox>();
 
-
-
             zocalo.Width = SystemParameters.FullPrimaryScreenWidth;
             zocalo.Height = Helper.Porciento(zocaloheight, Height);
             
-            Helper.ResizeLast(new [] {Volver2}, volverporcalto, volverporcancho);
-            //Posicionar label
+            Helper.ResizeLast(new [] {Volver2,Volvermenu}, volverporcalto, volverporcancho);
+            //Posicionar volvermenu
+            Helper.to_PositionButton(Volvermenu, volverMenuFromLeft, volverMenuFromBotton);
 
             //FooterBUttons()
             var footer = Helper.GetFooter();
@@ -108,9 +105,10 @@ namespace WpfAsistente
             //Boton Volver
            // Volver.Click += Volver_Click;
             Volver2.Click += Volver_Click;
+            Volvermenu.Click += VolverMenu_Click;
+            
             //
-           
-            cBrowser.Address = (DataContainer.Instance().Url);
+            cBrowser.Address = DataContainer.Instance().Url;
             cBrowser.JavascriptMessageReceived += OnBrowserJavascriptMessageReceived;
             cBrowser.FrameLoadEnd += OnFrameLoadEnd;
         }
@@ -123,6 +121,14 @@ namespace WpfAsistente
                 cBrowser.ExecuteScriptAsync(predel);
                 predel = @"document.querySelectorAll('.micrositio-menu-container')[0].style.display = 'none'";
                 cBrowser.ExecuteScriptAsync(predel);
+                foreach (var item in DataContainer.Instance().clickedButton.deletesections)
+                {
+
+                    string script = @" document.querySelectorAll('" +
+                        item.tag + "').forEach(element => {if(element.getAttribute('" + item.type + "')=='" + item.name + "')element.style.display = 'none'})";
+                    cBrowser.ExecuteScriptAsync(script);
+
+                }
                 isdeleted = true;
             }
             if (e.Frame.IsMain)
@@ -145,17 +151,7 @@ namespace WpfAsistente
             var windowSelection = (string)e.Message;
             VirtualKeyBoardHelper.AttachTabTip();
 
-        }
-       
-
-
-    
-
-
-   
-      
-
-      
+        }    
 
         private void NewBtn_Click(object sender, RoutedEventArgs e)
         {
@@ -186,8 +182,14 @@ namespace WpfAsistente
 
         private void Volver_Click(object sender, RoutedEventArgs e)
         {
-            cBrowser.ExecuteScriptAsync("history.back()");
+            cBrowser.ExecuteScriptAsync("history.back()");         
 
+        }
+
+        public void VolverMenu_Click(object sender, RoutedEventArgs e)
+        {
+            DataContainer.Instance().MainWndow.CloseAndgoMenu();
+            Close();
         }
 
 

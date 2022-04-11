@@ -23,14 +23,14 @@ namespace WpfAsistente
         public delegate void OnNoCapturingManager();
         public event OnNoCapturingManager OnNoCapturing;
 
-        private readonly Capture _capture;
+        private readonly VideoCapture _capture;
         public bool StopRecon;
         private const int Stoptime = 30000;
         private const int IsPerson = 5000;
 
         public Capturadora()
         {
-            _capture = new Capture();
+            _capture = new VideoCapture();
             _capture.SetCaptureProperty(Emgu.CV.CvEnum.CapProp.FrameHeight, 640);
             _capture.SetCaptureProperty(Emgu.CV.CvEnum.CapProp.FrameWidth, 480);
             _capture.SetCaptureProperty(Emgu.CV.CvEnum.CapProp.Fps, 30);

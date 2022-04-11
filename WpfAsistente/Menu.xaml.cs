@@ -21,6 +21,7 @@ using MessageBox = System.Windows.Forms.MessageBox;
 
 using System.Globalization;
 using System.ComponentModel;
+using System.Configuration;
 
 namespace WpfAsistente
 {
@@ -42,6 +43,7 @@ namespace WpfAsistente
         private BackgroundWorker worker=new BackgroundWorker();
         private Timer timer;
         private bool _enableRealTimeEdit = false;
+        readonly int shortMenu = Convert.ToInt32(ConfigurationManager.AppSettings["shortMenu"]);
 
         private void Menu_OnInitialized(object sender, EventArgs e)
         {
@@ -59,7 +61,10 @@ namespace WpfAsistente
             Storyboard s = (Storyboard)TryFindResource("MStoryboardy");
 
             //Eventos           
-            mediaElement.Source= new Uri(Helper.GetVideo("menu.mp4"), UriKind.Absolute);
+            mediaElement.Source = new Uri(Helper.GetVideo("menu.mp4"), UriKind.Absolute);
+            if (DataContainer.Instance().shortMenu)            
+                mediaElement.Position = new TimeSpan(0, 0, shortMenu);
+            
             //Dynamic buttons                  
             XmlDocument _xmlDoc = new XmlDocument();
             _xmlDoc.Load(@"localconfigs.xml");
@@ -71,14 +76,11 @@ namespace WpfAsistente
             NameScope.SetNameScope(this, new NameScope());
             bool isdefpos = DataContainer.Instance().DefaultButtonPos;
             decimal startpos = 0;
-          
             foreach (var boton in botones)
             {
-                if (boton.Name.ToLower() == "atras")
-                    continue;
-                Button newBtn = new Button();
+                Button newBtn = new Button();                
                 newBtn.Name = boton.Name;
-                RegisterName(newBtn.Name, newBtn);
+                this.RegisterName(newBtn.Name, newBtn);
                 newBtn.Content = "";
                 newBtn.Opacity = 0;
                 Image img = new Image();
@@ -88,16 +90,15 @@ namespace WpfAsistente
                 newBtn.Background = new ImageBrush(img.Source);
                 newBtn.RenderTransformOrigin = new Point(0.5, 0.5);
                 newBtn.BorderThickness = new Thickness(0);
-                newBtn.Style = (Style)Resources["MyButtonStyle"];
-                if (isdefpos)
-                {
+                newBtn.Style = (Style)this.Resources["MyButtonStyle"];
+                if (isdefpos) {
                     Helper.to_PositionButton(newBtn, (double)startpos, 50, false);
                     startpos += 7;
                 }
                 else
-                    Helper.to_PositionButton(newBtn, (double)boton.Postition, (double)boton.FromBotton, boton.FromRight);
-                Helper.ResizeButtonProportional(newBtn, (double)boton.Size);
-                /*Animation 1*/
+                Helper.to_PositionButton(newBtn, (double)boton.Postition, (double)boton.FromBotton,boton.FromRight);
+                Helper.ResizeButton(newBtn, (double)boton.Size);
+                /*Animation 1*/               
                 DoubleAnimation doubleAnimationOpacity = new DoubleAnimation();
                 doubleAnimationOpacity.BeginTime = TimeSpan.FromMilliseconds((double)boton.startAnimationTime);
                 doubleAnimationOpacity.AccelerationRatio = 0.3;
@@ -106,15 +107,19 @@ namespace WpfAsistente
                 doubleAnimationOpacity.To = 100;
                 sb.Children.Add(doubleAnimationOpacity);
                 Storyboard.SetTargetName(doubleAnimationOpacity, boton.Name);
-                Storyboard.SetTargetProperty(doubleAnimationOpacity, new PropertyPath(Rectangle.OpacityProperty));
-               if (!newBtn.Name.ToLower().Contains("zocalo"))
-                    newBtn.Click += NewBtn_Click;
+                Storyboard.SetTargetProperty(doubleAnimationOpacity, new PropertyPath(Rectangle.OpacityProperty));             
+                if(!newBtn.Name.ToLower().Contains("zocalo"))
+                newBtn.Click += NewBtn_Click;
                 this.canvasContainer.Children.Add(newBtn);
             }
-            //Formateando botones last       
+
+
+         
+            
+             //Formateando botones last       
             //  Helper.ResizeLast(new[] {estadotiempo,selfie}, 6.14583,27.7);
 
-
+            
             sb.Begin(this,true);         
             DataContainer.Instance().MainWndow.TimerActivity.Start();
             worker.DoWork += Worker_DoWork;
@@ -125,7 +130,7 @@ namespace WpfAsistente
 
         private void Menu_KeyDown(object sender, KeyEventArgs e)
         {
-            if (Keyboard.GetKeyStates(Key.Q) == KeyStates.Down) {
+            if (Keyboard.GetKeyStates(Key.Q) == KeyStates.Down && Keyboard.GetKeyStates(Key.W) == KeyStates.Down) {
                 _enableRealTimeEdit = !_enableRealTimeEdit;
                 CreateHelperButon(!_enableRealTimeEdit);
             } 
@@ -153,7 +158,7 @@ namespace WpfAsistente
                             var button = (Button)this.FindName(boton.Name);
                             //  Button button = Helper.FindChild<Button>(this.canvasContainer,boton.Name);
                             Helper.to_PositionButton(button, (double)boton.Postition, (double)boton.FromBotton, boton.FromRight);
-                            Helper.ResizeButtonProportional(button, (double)boton.Size);
+                            Helper.ResizeButton(button, (double)boton.Size);
                         }
                     }));
                 }

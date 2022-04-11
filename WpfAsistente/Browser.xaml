@@ -9,7 +9,7 @@
         ResizeMode="NoResize"
      
         Initialized="Browser_OnInitialized"
-        xmlns:wf="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms" xmlns:wpf="clr-namespace:CefSharp.Wpf;assembly=CefSharp.Wpf"
+        xmlns:wf="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms" 
         WindowStyle="None"
         >
 
@@ -78,13 +78,14 @@
                 </Button.Background>
             </Button>
 
-        </Canvas>      
-         
+        </Canvas>
 
-        <Border Grid.Row="1" BorderBrush="Gray" BorderThickness="0,1">
-            <wpf:ChromiumWebBrowser x:Name="browser" />
-        </Border>
-        <!--<Canvas x:Name="canvasContainerLine2" Grid.Column="0" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#00175b">
+      
+            <WindowsFormsHost Grid.Column="0" Grid.Row="1" x:Name="BrowserFormsHost">
+               <wf:WebBrowser x:Name="browser" ScrollBarsEnabled="True" Visible="True"></wf:WebBrowser>
+            </WindowsFormsHost>
+
+        <Canvas x:Name="canvasContainerLine2" Grid.Column="0" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#00175b">
             <Button x:Name="Volver" Content="" Canvas.Right="0" Canvas.Top="0"   Width="179" Height="177" BorderThickness="0" Style="{StaticResource MyButtonStyle}" Opacity="100">
                 <Button.Effect>
                     <DropShadowEffect/>
@@ -94,7 +95,7 @@
                     <ImageBrush ImageSource="pack://siteoforigin:,,,/Resources/Volver.png" />
                 </Button.Background>
             </Button>
-        </Canvas>-->
+        </Canvas>
 
         
         <Canvas x:Name="zocalo" Grid.Column="0" Grid.Row="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >

@@ -14,45 +14,45 @@
         >
 
     <Window.Resources>
-    <Style x:Key="MyButtonStyle" TargetType="Button">
-        <Setter Property="OverridesDefaultStyle" Value="True"/>
-        <Setter Property="Margin" Value="5"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="Button">
-                    <Border Name="border"
+        <Style x:Key="MyButtonStyle" TargetType="Button">
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Name="border"
   BorderThickness="1"
   Padding="4,2"
   BorderBrush="Transparent"
   CornerRadius="3"
   Background="{TemplateBinding Background}">
-                        <ContentPresenter
+                            <ContentPresenter
  HorizontalAlignment="Center" VerticalAlignment="Center" />
-                    </Border>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="border" Property="BorderBrush" Value="Transparent" />
-                        </Trigger>
-                    </ControlTemplate.Triggers>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-        <Style.Triggers>
-            <EventTrigger RoutedEvent="Button.Click">
-                <EventTrigger.Actions>
-                    <BeginStoryboard>
-                        <Storyboard>
-                            <DoubleAnimation By="-5" Duration="0:0:0.1" Storyboard.TargetProperty="(Button.Height) " AutoReverse="True"/>
-                            <DoubleAnimation By="-5" Duration="0:0:0.1" Storyboard.TargetProperty="(Button.Width)" AutoReverse="True"/>
-                        </Storyboard>
-                    </BeginStoryboard>
-                </EventTrigger.Actions>
-            </EventTrigger>
-        </Style.Triggers>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="BorderBrush" Value="Transparent" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <EventTrigger RoutedEvent="Button.Click">
+                    <EventTrigger.Actions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation By="-5" Duration="0:0:0.1" Storyboard.TargetProperty="(Button.Height) " AutoReverse="True"/>
+                                <DoubleAnimation By="-5" Duration="0:0:0.1" Storyboard.TargetProperty="(Button.Width)" AutoReverse="True"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger.Actions>
+                </EventTrigger>
+            </Style.Triggers>
 
-    </Style>
+        </Style>
     </Window.Resources>
-    
+
 
     <Grid  HorizontalAlignment="Stretch"       
           VerticalAlignment="Stretch" Background="Transparent"        Height="Auto" Width="Auto">
@@ -77,6 +77,15 @@
                     <ImageBrush ImageSource="pack://siteoforigin:,,,/Resources/Volver.png" />
                 </Button.Background>
             </Button>
+            <Button x:Name="Volvermenu" Content="" Canvas.Right="0" Canvas.Top="0"   Width="179" Height="177" BorderThickness="0" Style="{StaticResource MyButtonStyle}" Opacity="100">
+                <Button.Effect>
+                    <DropShadowEffect/>
+                </Button.Effect>
+
+                <Button.Background>
+                    <ImageBrush ImageSource="atrasmenu.png" />
+                </Button.Background>
+            </Button>
 
         </Canvas>
 
@@ -84,20 +93,20 @@
 
         <Border Grid.Row="1" BorderBrush="Gray" BorderThickness="0,1">
             <wpf:ChromiumWebBrowser x:Name="cBrowser" />
-          </Border>
+        </Border>
 
 
-                <Canvas x:Name="zocalo" Grid.Column="0" Grid.Row="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
+        <Canvas x:Name="zocalo" Grid.Column="0" Grid.Row="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
             <Canvas.Background>
                 <ImageBrush ImageSource="pack://siteoforigin:,,,/Resources/Zocalo.png" />
             </Canvas.Background>
-       
+
         </Canvas>
     </Grid>
 
-       
 
-   
+
+
 
 
 </Window>
