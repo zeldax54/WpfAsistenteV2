@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -24,6 +25,8 @@ namespace WpfAsistente
     /// </summary>
     public partial class VideosFull : Window
     {
+        readonly double volverporcalto = Convert.ToDouble(ConfigurationManager.AppSettings["volverporcaltofullvideo"]);
+        readonly double volverporcancho = Convert.ToDouble(ConfigurationManager.AppSettings["volverporcanchofullvideo"]);
         public VideosFull()
         {
             InitializeComponent();
@@ -39,6 +42,7 @@ namespace WpfAsistente
             DataContainer.Instance().Actividad = true;
             DataContainer.Instance().IsInVideoFull = true;
 
+            Helper.ResizeLast(new[] { Volvermenu }, volverporcalto, volverporcancho);
             mediaElement.MediaEnded += MediaElement_MediaEnded;
             Volvermenu.Click += Volvermenu_Click;
 
