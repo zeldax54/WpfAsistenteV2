@@ -67,7 +67,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <Canvas x:Name="canvasContainerLine" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#00175b">
+        <Canvas x:Name="canvasContainerLine" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#00175b" Panel.ZIndex="1">
             <Button x:Name="Volver2" Content="" Canvas.Right="0" Canvas.Top="0"   Width="179" Height="177" BorderThickness="0" Style="{StaticResource MyButtonStyle}" Opacity="100">
                 <Button.Effect>
                     <DropShadowEffect/>
@@ -86,17 +86,26 @@
                     <ImageBrush ImageSource="atrasmenu.png" />
                 </Button.Background>
             </Button>
+            <Button x:Name="TecladoMenu" Content="" Canvas.Right="0" Canvas.Top="0"   Width="179" Height="177" BorderThickness="0" Style="{StaticResource MyButtonStyle}" Opacity="100">
+                <Button.Effect>
+                    <DropShadowEffect/>
+                </Button.Effect>
+
+                <Button.Background>
+                    <ImageBrush ImageSource="tecladomenu.png" />
+                </Button.Background>
+            </Button>
 
         </Canvas>
 
 
 
-        <Border Grid.Row="1" BorderBrush="Gray" BorderThickness="0,1">
+        <Border Name="borderbrowser" Grid.Row="1" BorderBrush="Gray" BorderThickness="0" Panel.ZIndex="3">
             <wpf:ChromiumWebBrowser x:Name="cBrowser" />
         </Border>
 
 
-        <Canvas x:Name="zocalo" Grid.Column="0" Grid.Row="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
+        <Canvas x:Name="zocalo" Grid.Column="0" Grid.Row="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Panel.ZIndex="2">
             <Canvas.Background>
                 <ImageBrush ImageSource="pack://siteoforigin:,,,/Resources/Zocalo.png" />
             </Canvas.Background>

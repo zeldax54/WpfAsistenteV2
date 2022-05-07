@@ -377,7 +377,7 @@ namespace WpfAsistente
 
 
         public static List<System.Windows.Controls.Button> SetPosition(List<TypeClass.Button> buttons, ref Canvas container, Style style, ref Storyboard sb,
-            Action<string, object> RegisterName,
+            Action<string, object> RegisterName, double footersizewith,double footersizeheight,
             bool isdefpos = false, decimal startpos = 0)
         {
 
@@ -392,10 +392,11 @@ namespace WpfAsistente
                 Image img = new Image();
                 string strUri2 = Directory.GetCurrentDirectory() + $"/Img/MenuButtons/{boton.ImageName}";
                 img.Source = new BitmapImage(new Uri(strUri2));
-                img.Stretch = Stretch.Uniform;
+               // img.Stretch = Stretch.Uniform;
                 newBtn.Background = new ImageBrush(img.Source);
                 newBtn.RenderTransformOrigin = new Point(0.5, 0.5);
                 newBtn.BorderThickness = new Thickness(0);
+                
                 newBtn.Style = style;
                 if (isdefpos)
                 {
@@ -404,7 +405,9 @@ namespace WpfAsistente
                 }
                 else
                     Helper.to_PositionButton(newBtn, (double)boton.Postition, (double)boton.FromBotton, boton.FromRight);
-                Helper.ResizeButtonProportional(newBtn, (double)boton.Size);
+                //  Helper.ResizeButtonProportional(newBtn, (double)boton.Size);
+                newBtn.Width = footersizewith;
+                newBtn.Height = footersizeheight;
                 /*Animation 1*/
                 System.Windows.Media.Animation.DoubleAnimation doubleAnimationOpacity = new DoubleAnimation();
                 doubleAnimationOpacity.BeginTime = TimeSpan.FromMilliseconds(0);

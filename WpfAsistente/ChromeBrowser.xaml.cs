@@ -42,9 +42,13 @@ namespace WpfAsistente
         readonly double browserheight= Convert.ToDouble(ConfigurationManager.AppSettings["browserheight"]);
         readonly double volverMenuFromBotton = Convert.ToDouble(ConfigurationManager.AppSettings["volverMenuFromBotton"]);
         readonly double volverMenuFromLeft = Convert.ToDouble(ConfigurationManager.AppSettings["volverMenuFromLeft"]);
+        readonly double footersizewith = Convert.ToDouble(ConfigurationManager.AppSettings["footersizebtnwith"]);
+        readonly double footersizeheight = Convert.ToDouble(ConfigurationManager.AppSettings["footersizebtnheight"]);
 
 
-        BackgroundWorker worker;
+
+
+    
         public delegate void OnMenuManager(WpfAsistente.TypeClass.Button button);
         public event OnMenuManager OnmenuPost;
         bool OnlyBrowser;
@@ -54,10 +58,15 @@ namespace WpfAsistente
         {
             OnlyBrowser = pOnlyBrowser;
             InitializeComponent();
-        }     
+        }
 
         private void Browser_OnInitialized(object sender, EventArgs e)
-        {               
+        {
+            Canvas.SetZIndex(cBrowser, 500);
+            Canvas.SetZIndex(zocalo, 200);
+
+
+
 
             DataContainer.Instance().isIncBrowser = true;
             DataContainer.Instance().cBrowser = this;
@@ -79,24 +88,28 @@ namespace WpfAsistente
 
             cBrowser.Width= SystemParameters.FullPrimaryScreenWidth;
             cBrowser.Height = Helper.Porciento(browserheight, Height);
+            
+
             //
 
             TabTipAutomation.BindTo<System.Windows.Controls.TextBox>();
 
             zocalo.Width = SystemParameters.FullPrimaryScreenWidth;
-            zocalo.Height = Helper.Porciento(zocaloheight, Height);
-            
-            Helper.ResizeLast(new [] {Volver2,Volvermenu}, volverporcalto, volverporcancho);
+            zocalo.Height = Helper.Porciento(zocaloheight, Height);                
+
+            Helper.ResizeLast(new [] {Volver2,Volvermenu,TecladoMenu}, volverporcalto, volverporcancho);
             //Posicionar volvermenu
             Helper.to_PositionButton(Volvermenu, volverMenuFromLeft, volverMenuFromBotton);
+            Helper.to_PositionButton(TecladoMenu, 50, volverMenuFromBotton);
+
 
             //FooterBUttons()
             var footer = Helper.GetFooter();
             bool isdefpos = DataContainer.Instance().DefaultButtonPos;
             decimal startpos = 0;
             NameScope.SetNameScope(this, new NameScope());
-            System.Windows.Media.Animation.Storyboard sb = new System.Windows.Media.Animation.Storyboard();
-            var botones = Helper.SetPosition(footer, ref zocalo, (Style)Resources["MyButtonStyle"], ref sb, RegisterName, isdefpos, startpos);
+            Storyboard sb = new Storyboard();
+            var botones = Helper.SetPosition(footer, ref zocalo, (Style)Resources["MyButtonStyle"], ref sb, RegisterName, footersizewith, footersizeheight, isdefpos, startpos);
             sb.Begin(this, true);
             foreach (var b in botones)
                 b.Click += NewBtn_Click;
@@ -106,6 +119,7 @@ namespace WpfAsistente
            // Volver.Click += Volver_Click;
             Volver2.Click += Volver_Click;
             Volvermenu.Click += VolverMenu_Click;
+            TecladoMenu.Click += TecladoMenu_Click;
             
             //
             cBrowser.Address = DataContainer.Instance().Url;
@@ -113,45 +127,58 @@ namespace WpfAsistente
             cBrowser.FrameLoadEnd += OnFrameLoadEnd;
         }
 
+
+
         public void OnFrameLoadEnd(object sender, FrameLoadEndEventArgs e)
         {
+            string removeahrefBlank = @" document.querySelectorAll('a').forEach(element => {element.setAttribute('target', '_self')})";
+            cBrowser.ExecuteScriptAsync(removeahrefBlank);
+            cBrowser.ExecuteScriptAsync(@"
+
+                 document.querySelectorAll('input').forEach(element => element.addEventListener('click', ()=>{CefSharp.PostMessage('asdasd');})); 
+           
+	         ");
+            foreach (var item in DataContainer.Instance().clickedButton.deletesections)
+            {
+
+                string script = @" document.querySelectorAll('" +
+                    item.tag + "').forEach(element => {if(element.getAttribute('" + item.type + "')=='" + item.name + "')element.style.display = 'none'})";
+                cBrowser.ExecuteScriptAsync(script);
+            }
             if (!isdeleted)
             {
                 string predel = @" document.querySelectorAll('.micrositio-header')[0].style.display = 'none'";
                 cBrowser.ExecuteScriptAsync(predel);
                 predel = @"document.querySelectorAll('.micrositio-menu-container')[0].style.display = 'none'";
-                cBrowser.ExecuteScriptAsync(predel);
-                foreach (var item in DataContainer.Instance().clickedButton.deletesections)
-                {
-
-                    string script = @" document.querySelectorAll('" +
-                        item.tag + "').forEach(element => {if(element.getAttribute('" + item.type + "')=='" + item.name + "')element.style.display = 'none'})";
-                    cBrowser.ExecuteScriptAsync(script);
-
-                }
+                cBrowser.ExecuteScriptAsync(predel);              
+               
                 isdeleted = true;
             }
             if (e.Frame.IsMain)
             {
                 //In the main frame we inject some javascript that's run on mouseUp
                 //You can hook any javascript event you like.
-                cBrowser.ExecuteScriptAsync(@"
-
-              document.querySelectorAll('input').forEach(element => element.addEventListener('click', ()=>{CefSharp.PostMessage('asdasd');}));             
-
-
-	  
-           
-	         ");
+               
             }
         }
 
+        void PostMessage(string msj)
+        { 
+        
+        
+        }
         private void OnBrowserJavascriptMessageReceived(object sender, JavascriptMessageReceivedEventArgs e)
         {
             var windowSelection = (string)e.Message;
             VirtualKeyBoardHelper.AttachTabTip();
 
-        }    
+        }
+
+
+        private void TecladoMenu_Click(object sender, RoutedEventArgs e)
+        {
+            VirtualKeyBoardHelper.AttachTabTipIfNot();
+        }
 
         private void NewBtn_Click(object sender, RoutedEventArgs e)
         {
@@ -285,6 +312,13 @@ namespace WpfAsistente
                 //if (!IsStart("TabTip"))
                //   Process.Start("TabTip.exe");
                 Process.Start("osk.exe");
+            }
+
+            public static void AttachTabTipIfNot()
+            {
+                DataContainer.Instance().MainWndow.ActivityRestart();
+                if(!IsStart("osk"))
+                 Process.Start("osk.exe");
             }
 
             public static void RemoveTabTip()

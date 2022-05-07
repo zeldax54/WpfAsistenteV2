@@ -90,7 +90,7 @@ namespace WpfAsistente
                 fechas[2] = "0" + fechas[2];
             string fecfaginal = fechas.Aggregate("", (current, f) => current + f);
             return DateTime.ParseExact(fecfaginal, Format, culture);
-     }
+      }
 
       private bool CompareFechasAsString(DateTime a, DateTime b)
       {

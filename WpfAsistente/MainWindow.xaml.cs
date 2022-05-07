@@ -176,6 +176,7 @@ namespace WpfAsistente
 
         public void ErrorBehabior()
         {
+
             if (DataContainer.Instance().IsinVideoPlayer)
             {
                 DataContainer.Instance().IsinVideoPlayer = false;
