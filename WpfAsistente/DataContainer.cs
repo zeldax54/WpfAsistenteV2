@@ -48,6 +48,8 @@ namespace WpfAsistente
         //menu Mark
         public bool shortMenu;
 
+        public string CatchUrl;
+
 
         protected DataContainer()
         {            

@@ -224,6 +224,7 @@
     </Compile>
     <Compile Include="NetworkShareAccesser.cs" />
     <Compile Include="MyXmlParser.cs" />
+    <Compile Include="MyRequestHandler.cs" />
     <Compile Include="SearchWindow.xaml.cs">
       <DependentUpon>SearchWindow.xaml</DependentUpon>
     </Compile>
@@ -316,14 +317,17 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\Zocalo.png" />
+    <None Include="Resources\Zocalo.bmp" />
     <Resource Include="tecladomenu.png" />
     <None Include="Resources\atrasMenu.bmp" />
-    <Resource Include="Resources\zocalo.png" />
     <None Include="bin\Debug\Resources\zocalo.png" />
     <None Include="bin\Debug\Resources\volver.png" />
     <None Include="bin\Debug\Resources\atrasMenu.png" />
     <Resource Include="atrasMenu.bmp" />
     <Resource Include="atrasmenu.png" />
+    <None Include="bin\Debug\Resources\atrabrowser.png" />
+    <None Include="bin\Debug\Resources\atrasbrowser.png" />
     <Content Include="eye.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

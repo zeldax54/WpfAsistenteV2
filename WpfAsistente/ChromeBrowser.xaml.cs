@@ -54,6 +54,11 @@ namespace WpfAsistente
         bool OnlyBrowser;
         bool isdeleted = false;
 
+
+
+    
+        
+
         public ChromeBrowser(bool pOnlyBrowser=false)
         {
             OnlyBrowser = pOnlyBrowser;
@@ -125,10 +130,16 @@ namespace WpfAsistente
             cBrowser.Address = DataContainer.Instance().Url;
             cBrowser.JavascriptMessageReceived += OnBrowserJavascriptMessageReceived;
             cBrowser.FrameLoadEnd += OnFrameLoadEnd;
+           // cBrowser.RequestHandler = new MyRequestHandler();
+            cBrowser.LifeSpanHandler = this;
+
+
+
         }
 
+       
 
-
+      
         public void OnFrameLoadEnd(object sender, FrameLoadEndEventArgs e)
         {
             string removeahrefBlank = @" document.querySelectorAll('a').forEach(element => {element.setAttribute('target', '_self')})";
@@ -159,7 +170,7 @@ namespace WpfAsistente
                 //In the main frame we inject some javascript that's run on mouseUp
                 //You can hook any javascript event you like.
                
-            }
+            }            
         }
 
         void PostMessage(string msj)
@@ -215,12 +226,19 @@ namespace WpfAsistente
 
         public void VolverMenu_Click(object sender, RoutedEventArgs e)
         {
+            foreach (var p in popus)
+            {
+                //this.Dispatcher.Invoke(() =>
+                //{
+
+                //   // cBrowser.Address = targetUrl;
+
+                //});
+                p.GetBrowser().CloseBrowser(false);
+            }
             DataContainer.Instance().MainWndow.CloseAndgoMenu();
             Close();
         }
-
-
-
 
 
         protected override void OnClosing(CancelEventArgs e)
@@ -236,10 +254,23 @@ namespace WpfAsistente
 
         List<IWebBrowser> popus = new List<IWebBrowser>();
 
-        public bool OnBeforePopup(IWebBrowser pchromiumWebBrowser, IBrowser pbrowser, IFrame frame, string targetUrl, string targetFrameName, WindowOpenDisposition targetDisposition, bool userGesture, IPopupFeatures popupFeatures, IWindowInfo windowInfo, IBrowserSettings browserSettings, ref bool noJavascriptAccess, out IWebBrowser newBrowser)
+        public bool OnBeforePopup(IWebBrowser pchromiumWebBrowser, IBrowser pbrowser, 
+            IFrame frame, string targetUrl, string targetFrameName,
+            WindowOpenDisposition targetDisposition, bool userGesture, 
+            IPopupFeatures popupFeatures, IWindowInfo windowInfo, IBrowserSettings browserSettings,
+            ref bool noJavascriptAccess, out IWebBrowser newBrowser)
         {
             newBrowser = new ChromiumWebBrowser(targetUrl);
             popus.Add(newBrowser);
+            
+          //  newBrowser = null;
+            //this.Dispatcher.Invoke(() =>
+            //{
+               
+            //   // cBrowser.Address = targetUrl;
+                
+            //});
+
             return false;
         }
 
@@ -354,6 +385,7 @@ namespace WpfAsistente
                 }
             }
         }
+
 
     }
 }
